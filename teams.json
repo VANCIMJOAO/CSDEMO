@@ -1,0 +1,285 @@
+[
+  {
+    "id": "team_dust_legends",
+    "name": "Dust Legends",
+    "logo": "https://ui-avatars.com/api/?name=DL&size=200&background=1e40af&color=fff&bold=true",
+    "players": [
+      {
+        "steamid": "76561198128619016",
+        "name": "abeL-",
+        "photo": "https://ui-avatars.com/api/?name=abeL&size=200&background=6366f1&color=fff&bold=true"
+      },
+      {
+        "steamid": "76561198147089187",
+        "name": "mKn",
+        "photo": "https://ui-avatars.com/api/?name=mKn&size=200&background=8b5cf6&color=fff&bold=true"
+      },
+      {
+        "steamid": "76561198289144579",
+        "name": "MikloveDaMPine",
+        "photo": "https://ui-avatars.com/api/?name=MD&size=200&background=ec4899&color=fff&bold=true"
+      },
+      {
+        "steamid": "76561197968219115",
+        "name": "STONLER",
+        "photo": "https://ui-avatars.com/api/?name=ST&size=200&background=f59e0b&color=fff&bold=true"
+      },
+      {
+        "steamid": "76561199206270998",
+        "name": "BADUZ3R4",
+        "photo": "https://ui-avatars.com/api/?name=BZ&size=200&background=10b981&color=fff&bold=true"
+      }
+    ],
+    "created_at": "2025-10-17T09:35:00.000000"
+  },
+  {
+    "id": "team_orbitral_roxa",
+    "name": "ORBITAL ROXA",
+    "logo": "/static/team_logos/logo-orbital-ok.jpg",
+    "players": [
+      {
+        "steamid": "76561199175469752",
+        "name": "ferreira",
+        "photo": "https://scontent.cdninstagram.com/v/t51.82787-15/557700843_17981807480918979_3760853474142113470_n.webp?_nc_cat=103&ig_cache_key=MzczMzc3MzU4NDM1MjUzMDQ1MA%3D%3D.3-ccb1-7&ccb=1-7&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjE0NDB4MTQ0MC5zZHIuQzMifQ%3D%3D&_nc_ohc=XFS4TD2bvvwQ7kNvwGwaAij&_nc_oc=AdnMg08jLBkDzK3w5yJ-fKbRfal5I3Ix0fhmtMVfclXnyGsc5V8elf9tJ7sgYumNST4&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&_nc_gid=rEJVsB59QluDQWOKSLRx5w&oh=00_AffRBZVrnIu8doQmBSLZMnT984PqB0DLSx_7A6h2Hl_Lzw&oe=68F751ED"
+      },
+      {
+        "steamid": "76561198320501257",
+        "name": "renzo",
+        "photo": "https://instagram.frao2-1.fna.fbcdn.net/v/t51.2885-19/541141059_18385118023130943_8210685647402526898_n.jpg?stp=dst-jpg_s150x150_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLmRqYW5nby4xMDgwLmMyIn0&_nc_ht=instagram.frao2-1.fna.fbcdn.net&_nc_cat=103&_nc_oc=Q6cZ2QFTUFvFYm4hAslHxhcmufVT_LKFEZinNxv-pcpyJB_vlVGgGF2ZnzNL_nd9hTMuIZw&_nc_ohc=C3arjFrGvmcQ7kNvwEq-L9K&_nc_gid=arHEWwI5Fz_dPPoFx_8tZg&edm=ALGbJPMBAAAA&ccb=7-5&oh=00_Affc4QeEBmcg-DOE8mg9WPPg3Ja1AHPQ5f2UHb1gcOXqVA&oe=68F7664A&_nc_sid=7d3ac5"
+      },
+      {
+        "steamid": "76561199263869595",
+        "name": "vittim",
+        "photo": "https://scontent.cdninstagram.com/v/t51.75761-15/486699466_17854438605407493_1713458327392453379_n.jpg?stp=dst-jpegr_e35_tt6&_nc_cat=111&ig_cache_key=MzU5NTMzNjE0ODU1NTUxMjY1OA%3D%3D.3-ccb1-7&ccb=1-7&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjE0NDB4MTgwMC5oZHIuQzMifQ%3D%3D&_nc_ohc=adriLuqNu0AQ7kNvwF_aFnr&_nc_oc=Adn6CmxWLBfanAuxQLmNf4zQUrWX3f1lMkM1jetk1NVmDNENkFK4-RPN75wQ6q3uWfY&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&se=-1&_nc_ht=scontent.cdninstagram.com&_nc_gid=LkWHwxpIeUyHJxB-2wafCg&oh=00_Afdq2gkclPXtF8Ew5CZ94Vxrn-W9lGMVTrcb-fS24inZeQ&oe=68F75F8C"
+      },
+      {
+        "steamid": "76561198330221448",
+        "name": "nastyyy",
+        "photo": "https://scontent.cdninstagram.com/v/t51.75761-15/487700903_18370123717126533_4740947549757652893_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ig_cache_key=MzYwMDY5MjAxMjEwMzY3MDA3Mw%3D%3D.3-ccb1-7&ccb=1-7&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjE0NDB4MTgwMC5zZHIuQzMifQ%3D%3D&_nc_ohc=sTJUGG-B-bsQ7kNvwHo9QRz&_nc_oc=Adl7UE-qfcqQIsjcaNnQcjSzdLeQD98nur-Egi9MHWU_4agve0eSRk2sCIi82gv0vnQ&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&_nc_gid=So9HzIBfaWSt9Ralr_MylA&oh=00_AfeMfunY59RtXZygMJEfnu3XOinmAgOCymrRDEC2rIal4g&oe=68F773DD"
+      },
+      {
+        "steamid": "76561197984561884",
+        "name": "jao churrasqueiro",
+        "photo": "blob:https://web.whatsapp.com/c4f29237-2078-42e8-b883-767d3ed1e3c2"
+      }
+    ],
+    "created_at": "2025-10-16T22:21:24.479312"
+  },
+  {
+    "id": "team_1760734534",
+    "name": "Cansados",
+    "logo": "/static/team_logos/Cansados.png",
+    "players": [
+      {
+        "steamid": "76561199559032396",
+        "name": "NovatoS1",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198389361765",
+        "name": "sM'",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T17:55:34.028377",
+    "updated_at": "2025-10-17T17:55:39.174518"
+  },
+  {
+    "id": "team_1760734618",
+    "name": "ArtGamerz",
+    "logo": "/static/team_logos/ArtGamerz.jpeg",
+    "players": [
+      {
+        "steamid": "76561198013413376",
+        "name": "r1cKzudo",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561197960287930",
+        "name": "yuz1n",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198424890382",
+        "name": "t9mpest",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561199086802078",
+        "name": "pedz",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.pnghttps://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198000277857",
+        "name": "muril1n",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T17:56:58.296058"
+  },
+  {
+    "id": "team_1760734682",
+    "name": "G5 Esports",
+    "logo": "/static/team_logos/G5 - Esports_v1.png",
+    "players": [
+      {
+        "steamid": "76561198079803180",
+        "name": "dnd",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.pnghttps://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198082924455",
+        "name": "Aldo",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.pnghttps://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561199376342714",
+        "name": "gob4tto",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198957371842",
+        "name": "Pryze",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198382692379",
+        "name": "Bruxo27",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T17:58:02.760530"
+  },
+  {
+    "id": "team_1760734743",
+    "name": "Big Juice",
+    "logo": "/static/team_logos/Big Juice.jpeg",
+    "players": [
+      {
+        "steamid": "76561198355644915",
+        "name": "7pele",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198356739820",
+        "name": "yak das neves",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198047383377",
+        "name": "sh0k",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198766048973",
+        "name": "st4lyzz",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198175705522",
+        "name": "faca de dois legumes",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T17:59:03.162352"
+  },
+  {
+    "id": "team_1760734795",
+    "name": "Rapid Fire",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png",
+    "players": [
+      {
+        "steamid": "76561198159193112",
+        "name": "saulleN",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198038458503",
+        "name": "igrzk",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561199074765043",
+        "name": "leoking-_",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561199215697390",
+        "name": "lcszik444-",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198966795881",
+        "name": "linz1k-",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T17:59:55.728503"
+  },
+  {
+    "id": "team_1760734846",
+    "name": "Xilimbrim e-Sports",
+    "logo": "/static/team_logos/Xilimbrim_v2.png",
+    "players": [
+      {
+        "steamid": "76561199108389703",
+        "name": "OriooN",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198074905075",
+        "name": "LANGOFPS1",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198304924125",
+        "name": "[ɢ]ᴜɪsʀʟ",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198104768859",
+        "name": "Tnkzim",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198078265982",
+        "name": "C K R",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T18:00:46.574532"
+  },
+  {
+    "id": "team_1760736257",
+    "name": "Mestres da Cen@",
+    "logo": "/static/team_logos/Mestres da cen_page-0001.jpg",
+    "players": [
+      {
+        "steamid": "76561198167893225",
+        "name": "M1LF TH3 M0NST3R",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "STEAM_0:1:2830211",
+        "name": "trace",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198934510668",
+        "name": "Viet",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198036653162",
+        "name": "vn1",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      },
+      {
+        "steamid": "76561198823755340",
+        "name": "csn",
+        "photo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png"
+      }
+    ],
+    "created_at": "2025-10-17T18:24:17.799336"
+  }
+]

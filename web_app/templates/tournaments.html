@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Analyzer - Torneios</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar-menu">
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/matches" class="sidebar-link">
+                <a href="/upload" class="sidebar-link">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </a>
+                    <i class="fas fa-gamepad"></i>
+                    <span>Partidas</span>
+                </a>
+                <a href="/players" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/tournaments" class="sidebar-link active">
+                    <i class="fas fa-trophy"></i>
+                    <span>Torneios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Carregando torneios...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>🏆 Nenhum torneio registrado ainda</h2>
+            <p>Para criar um torneio, basta criar uma pasta dentro de <code>demos/campeonatos/</code></p>
+            <p style="margin-top: 1rem; color: #495057;">
+                <strong>💡 Exemplo:</strong> <code>demos/campeonatos/alcans-santosgames/</code>
+            </p>
+        </div>
+
+        <!-- Header Section -->
+        <div id="headerSection" class="section-header" style="display: none; margin-bottom: var(--space-6);">
+            <h2 class="section-title">Torneios</h2>
+            <p class="section-subtitle" id="tournamentsCount">Carregando...</p>
+        </div>
+
+        <!-- Tournaments Grid -->
+        <div id="tournamentsSection" style="display: none;">
+            <div class="tournaments-grid" id="tournamentsGrid">
+                <!-- Tournament cards will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎮 CS2 Demo Analyzer - LAN Party Edition</p>
+            <p>Desenvolvido para análise profissional em tempo real 💪</p>
+        </div>
+    </div>
+
+    <script>
+        // Carregar torneios
+        async function loadTournaments() {
+            try {
+                const response = await fetch('/api/tournaments');
+                const tournaments = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (tournaments && tournaments.length > 0) {
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('headerSection').style.display = 'block';
+                    document.getElementById('tournamentsSection').style.display = 'block';
+
+                    const count = tournaments.length;
+                    document.getElementById('tournamentsCount').textContent =
+                        count === 1 ? '1 torneio encontrado' : `${count} torneios encontrados`;
+
+                    renderTournaments(tournaments);
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('headerSection').style.display = 'none';
+                    document.getElementById('tournamentsSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar torneios:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: #dc3545;">❌ Erro ao carregar torneios</p>';
+            }
+        }
+
+        // Renderizar torneios
+        function renderTournaments(tournaments) {
+            const grid = document.getElementById('tournamentsGrid');
+            grid.innerHTML = '';
+
+            tournaments.forEach(tournament => {
+                const card = document.createElement('div');
+                card.className = 'tournament-card';
+                card.onclick = () => window.location.href = `/tournament/${tournament.slug}`;
+
+                // Formatar data
+                const date = new Date(tournament.created_at);
+                const dateStr = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="tournament-card-header">
+                        <div class="tournament-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="tournament-badge">
+                            ${tournament.total_matches} ${tournament.total_matches === 1 ? 'Partida' : 'Partidas'}
+                        </div>
+                    </div>
+                    <div class="tournament-card-body">
+                        <h3 class="tournament-name">${tournament.name}</h3>
+                        <p class="tournament-date">
+                            <i class="fas fa-calendar"></i> ${dateStr}
+                        </p>
+                    </div>
+                    <div class="tournament-card-footer">
+                        <a href="/tournament/${tournament.slug}" class="tournament-view-btn" onclick="event.stopPropagation()">
+                            Ver Torneio
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <path d="M12 8L6 12V4L12 8Z" fill="currentColor"/>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTournaments();
+        });
+    </script>
+        </div>
+    </div>
+</body>
+</html>

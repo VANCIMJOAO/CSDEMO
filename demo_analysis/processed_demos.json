@@ -1,0 +1,77 @@
+{
+  "71e294d58ada2756807158c18fc07528": {
+    "filename": "match730_003780802222531543405_0747851521_201.dem",
+    "demo_name": "match730_003780802222531543405_0747851521_201",
+    "processed_at": "2025-10-16T15:51:14.948699",
+    "file_size": 354367797,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/match730_003780802222531543405_0747851521_201",
+    "tournament": "teste"
+  },
+  "d8e1194b131f62c9a14a11a631a90e66": {
+    "filename": "furia-vs-og-m1-nuke.dem",
+    "demo_name": "furia-vs-og-m1-nuke",
+    "processed_at": "2025-10-16T15:51:17.075406",
+    "file_size": 518265577,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/furia-vs-og-m1-nuke"
+  },
+  "2a5d765dd1d8cae774185365e2e1efd4": {
+    "filename": "furia-vs-og-m2-inferno.dem",
+    "demo_name": "furia-vs-og-m2-inferno",
+    "processed_at": "2025-10-16T15:51:19.848908",
+    "file_size": 578836657,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/furia-vs-og-m2-inferno"
+  },
+  "85323be8153daa36445c551e1b6171e7": {
+    "filename": "1-87d71fc7-6a7f-4b15-a003-c21af32456c5-1-1.dem",
+    "demo_name": "1-87d71fc7-6a7f-4b15-a003-c21af32456c5-1-1",
+    "processed_at": "2025-10-16T23:35:10.043595",
+    "file_size": 278875845,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/1-87d71fc7-6a7f-4b15-a003-c21af32456c5-1-1"
+  },
+  "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6": {
+    "filename": "partida1_g5_vs_cansados.dem",
+    "demo_name": "partida1_g5_vs_cansados",
+    "processed_at": "2025-10-19T10:00:00",
+    "file_size": 524288,
+    "analysis_path": "demo_analysis/partida1_g5_vs_cansados",
+    "tournament": "alcans-santos-gamers"
+  },
+  "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7": {
+    "filename": "partida2_xilimbrim_vs_mestres.dem",
+    "demo_name": "partida2_xilimbrim_vs_mestres",
+    "processed_at": "2025-10-19T10:15:00",
+    "file_size": 612352,
+    "analysis_path": "demo_analysis/partida2_xilimbrim_vs_mestres",
+    "tournament": "alcans-santos-gamers"
+  },
+  "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8": {
+    "filename": "partida3_orbital_vs_bigjuice.dem",
+    "demo_name": "partida3_orbital_vs_bigjuice",
+    "processed_at": "2025-10-19T10:30:00",
+    "file_size": 698432,
+    "analysis_path": "demo_analysis/partida3_orbital_vs_bigjuice",
+    "tournament": "alcans-santos-gamers"
+  },
+  "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9": {
+    "filename": "partida4_rapidfire_vs_artgamerz.dem",
+    "demo_name": "partida4_rapidfire_vs_artgamerz",
+    "processed_at": "2025-10-19T10:45:00",
+    "file_size": 581632,
+    "analysis_path": "demo_analysis/partida4_rapidfire_vs_artgamerz",
+    "tournament": "alcans-santos-gamers"
+  },
+  "ea710a7f7afe38cf42d47160ea25adf5": {
+    "filename": "9ine-vs-ruby-m2-ancient.dem",
+    "demo_name": "9ine-vs-ruby-m2-ancient",
+    "processed_at": "2025-10-18T13:29:45.731063",
+    "file_size": 991155390,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/9ine-vs-ruby-m2-ancient"
+  },
+  "123ca70fac278c2a1de3f34d51f009ef": {
+    "filename": "9ine-vs-ruby-m1-dust2.dem",
+    "demo_name": "9ine-vs-ruby-m1-dust2",
+    "processed_at": "2025-10-18T14:42:57.606823",
+    "file_size": 699514139,
+    "analysis_path": "/home/vancim/cs2analyzer/demo_analysis/9ine-vs-ruby-m1-dust2"
+  }
+}

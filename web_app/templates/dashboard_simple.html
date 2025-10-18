@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - {{ demo_name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">CS</div>
+                    <div class="logo-text">CS2 Analyzer</div>
+                </a>
+                <div class="header-actions">
+                    <a href="/" class="btn btn-secondary">
+                        ← Voltar
+                    </a>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        Recarregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Dashboard - {{ demo_name }}</h1>
+            <nav class="nav-tabs">
+                <a href="/" class="nav-tab">Início</a>
+                <a href="/dashboard/{{ demo_name }}" class="nav-tab active">Dashboard</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="summary-section">
+                <h2>📈 Resumo da Partida</h2>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>{{ demo_name }}</h3>
+                        <p>Total de Rounds: {{ round_count }}</p>
+                        <p>Duração: {{ match_duration }}</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>🎯 Estatísticas Gerais</h3>
+                        <p>Total Kills: {{ total_kills }}</p>
+                        <p>Headshots: {{ total_hs }} ({{ hs_percentage }}%)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounds-section">
+                <h2>📊 Detalhes por Round</h2>
+                <div class="rounds-grid">
+                    {% for round in round_data %}
+                    <div class="round-card">
+                        <div class="round-header">
+                            <h4>Round {{ round.round }}</h4>
+                            <span class="round-status {{ 'ct-win' if round.ct_kills > round.t_kills else 't-win' }}">
+                                {{ 'CT Win' if round.ct_kills > round.t_kills else 'T Win' }}
+                            </span>
+                        </div>
+                        <div class="round-stats">
+                            <div class="stat-row">
+                                <span>Total Kills:</span>
+                                <span>{{ round.total_kills }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>CT Kills:</span>
+                                <span class="ct-stat">{{ round.ct_kills }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>T Kills:</span>
+                                <span class="t-stat">{{ round.t_kills }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Headshots:</span>
+                                <span>{{ round.headshots }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Top Fragger:</span>
+                                <span class="top-fragger">{{ round.top_fragger }} ({{ round.top_fragger_kills }} Kills)</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

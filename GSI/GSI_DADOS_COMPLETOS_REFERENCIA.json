@@ -1,0 +1,458 @@
+{
+  "_comment": "PAYLOAD COMPLETO DO GAME STATE INTEGRATION (GSI) DO CS2",
+  "_description": "Este arquivo mostra TODOS os dados que o CS2 pode enviar via GSI",
+  "_usage": "Use como referência para implementar novas funcionalidades no dashboard",
+  
+  "auth": {
+    "_description": "Autenticação - validar que dados vêm de fonte confiável",
+    "token": "SenhaSuperSecretaParaSuaLanHouse"
+  },
+  
+  "provider": {
+    "_description": "Informações sobre quem está enviando os dados",
+    "name": "Counter-Strike: Global Offensive",
+    "appid": 730,
+    "version": 13960,
+    "steamid": "76561198012345678",
+    "timestamp": 1729234567,
+    "_fields": {
+      "name": "Nome do jogo (sempre CS:GO mesmo sendo CS2)",
+      "appid": "ID da aplicação Steam (sempre 730)",
+      "version": "Versão do jogo",
+      "steamid": "Steam ID do jogador que está enviando",
+      "timestamp": "Unix timestamp do momento do envio"
+    }
+  },
+  
+  "map": {
+    "_description": "Dados do mapa e da partida",
+    "mode": "competitive",
+    "name": "de_dust2",
+    "phase": "live",
+    "round": 5,
+    "team_ct": {
+      "score": 3,
+      "consecutive_round_losses": 0,
+      "timeouts_remaining": 1,
+      "matches_won_this_series": 0
+    },
+    "team_t": {
+      "score": 2,
+      "consecutive_round_losses": 1,
+      "timeouts_remaining": 1,
+      "matches_won_this_series": 0
+    },
+    "num_matches_to_win_series": 1,
+    "current_spectators": 0,
+    "souvenirs_total": 0,
+    "_fields": {
+      "mode": "Modo de jogo: competitive, casual, deathmatch, wingman, etc",
+      "name": "Nome do mapa: de_dust2, de_mirage, de_inferno, etc",
+      "phase": "Fase da partida: warmup, live, intermission, gameover",
+      "round": "Número do round atual (1-30+)",
+      "team_ct.score": "Placar do time Counter-Terrorist",
+      "team_t.score": "Placar do time Terrorist",
+      "team_ct.consecutive_round_losses": "Rounds perdidos seguidos (para loss bonus)",
+      "team_ct.timeouts_remaining": "Timeouts táticos restantes",
+      "team_ct.matches_won_this_series": "Mapas vencidos na série (BO3/BO5)",
+      "num_matches_to_win_series": "Quantos mapas precisa vencer para ganhar a série",
+      "current_spectators": "Número de espectadores assistindo",
+      "souvenirs_total": "Total de souvenirs dropados"
+    },
+    "_usage": {
+      "phase_warmup": "Partida ainda não começou, jogadores em aquecimento",
+      "phase_live": "Partida em andamento - CRIAR NOVA PARTIDA NO BANCO",
+      "phase_gameover": "Partida finalizada - MARCAR PARTIDA COMO ENCERRADA",
+      "loss_bonus": "consecutive_round_losses indica quanto dinheiro extra o time ganha"
+    }
+  },
+  
+  "round": {
+    "_description": "Dados do round atual",
+    "phase": "live",
+    "bomb": "planted",
+    "win_team": null,
+    "_fields": {
+      "phase": "Fase do round: freezetime, live, over",
+      "bomb": "Estado da bomba: planted, defused, exploded, ou null",
+      "win_team": "Vencedor do round: CT, T, ou null se ainda em andamento"
+    },
+    "_usage": {
+      "phase_freezetime": "Tempo de compra (15 segundos)",
+      "phase_live": "Round em andamento, jogadores podem se mover",
+      "phase_over": "Round terminou - SALVAR NO HISTÓRICO",
+      "bomb_planted": "Mostrar countdown e alerta visual",
+      "bomb_defused": "CT venceu por defuse",
+      "bomb_exploded": "T venceu por explosão"
+    }
+  },
+  
+  "player": {
+    "_description": "Dados do jogador LOCAL (quem está enviando os dados)",
+    "steamid": "76561198012345678",
+    "name": "Player1",
+    "observer_slot": 1,
+    "team": "CT",
+    "activity": "playing",
+    "state": {
+      "health": 100,
+      "armor": 100,
+      "helmet": true,
+      "flashed": 0,
+      "smoked": 0,
+      "burning": 0,
+      "money": 3500,
+      "round_kills": 2,
+      "round_killhs": 1,
+      "round_totaldmg": 250,
+      "equip_value": 4700,
+      "defusekit": false
+    },
+    "weapons": {
+      "weapon_0": {
+        "name": "weapon_ak47",
+        "paintkit": "default",
+        "type": "Rifle",
+        "ammo_clip": 30,
+        "ammo_clip_max": 30,
+        "ammo_reserve": 90,
+        "state": "active"
+      },
+      "weapon_1": {
+        "name": "weapon_glock",
+        "paintkit": "default",
+        "type": "Pistol",
+        "ammo_clip": 20,
+        "ammo_clip_max": 20,
+        "ammo_reserve": 120,
+        "state": "holstered"
+      },
+      "weapon_2": {
+        "name": "weapon_knife",
+        "paintkit": "default",
+        "type": "Knife",
+        "state": "holstered"
+      },
+      "weapon_3": {
+        "name": "weapon_hegrenade",
+        "paintkit": "default",
+        "type": "Grenade",
+        "ammo_clip": 1,
+        "ammo_clip_max": 1,
+        "state": "holstered"
+      }
+    },
+    "match_stats": {
+      "kills": 12,
+      "assists": 3,
+      "deaths": 5,
+      "mvps": 2,
+      "score": 35
+    },
+    "position": {
+      "x": 123.45,
+      "y": -456.78,
+      "z": 90.12
+    },
+    "forward": {
+      "x": 0.5,
+      "y": 0.8,
+      "z": 0.0
+    },
+    "_fields": {
+      "steamid": "Steam ID único do jogador",
+      "name": "Nome do jogador (nickname)",
+      "observer_slot": "Slot de espectador (1-10)",
+      "team": "Time: CT, T, ou Spectator",
+      "activity": "Atividade: playing, menu, textinput",
+      "state.health": "Vida atual (0-100)",
+      "state.armor": "Colete atual (0-100)",
+      "state.helmet": "Tem capacete? (true/false)",
+      "state.flashed": "Nível de flash (0-255, 255 = totalmente flashado)",
+      "state.smoked": "Dentro de fumaça? (0-255)",
+      "state.burning": "Queimando? (0-255)",
+      "state.money": "Dinheiro atual ($0-$16000)",
+      "state.round_kills": "Kills NESTE round (0-5)",
+      "state.round_killhs": "Headshots NESTE round",
+      "state.round_totaldmg": "Dano total causado NESTE round",
+      "state.equip_value": "Valor total do equipamento atual",
+      "state.defusekit": "Tem kit de defuse? (true/false)",
+      "weapons": "Objeto com todas as armas do jogador",
+      "weapons.name": "Nome da arma: weapon_ak47, weapon_awp, etc",
+      "weapons.paintkit": "Skin da arma (default ou nome da skin)",
+      "weapons.type": "Tipo: Rifle, Pistol, Knife, Grenade, C4, etc",
+      "weapons.ammo_clip": "Munição no pente atual",
+      "weapons.ammo_clip_max": "Capacidade máxima do pente",
+      "weapons.ammo_reserve": "Munição reserva",
+      "weapons.state": "Estado: active (equipada) ou holstered (guardada)",
+      "match_stats.kills": "Total de kills na partida",
+      "match_stats.assists": "Total de assistências",
+      "match_stats.deaths": "Total de mortes",
+      "match_stats.mvps": "Total de MVPs (melhor jogador do round)",
+      "match_stats.score": "Pontuação total",
+      "position": "Posição 3D no mapa (coordenadas x, y, z)",
+      "forward": "Vetor direcional para onde está olhando"
+    },
+    "_usage": {
+      "health_0": "Jogador morto - mostrar caveira ou opacidade reduzida",
+      "flashed_high": "Jogador flashado - pode mostrar ícone de flash",
+      "burning_high": "Jogador queimando - mostrar ícone de fogo",
+      "round_kills_5": "ACE! Destacar jogador que fez 5 kills no round",
+      "defusekit_true": "Indicar visualmente quem pode defusar mais rápido",
+      "equip_value": "Comparar investimento entre jogadores/times",
+      "position": "Plotar no mapa 2D para visualização tática",
+      "forward": "Mostrar direção do olhar no mapa"
+    }
+  },
+  
+  "allplayers": {
+    "_description": "Dados de TODOS os jogadores (exceto bots)",
+    "_structure": "Objeto onde chave = steamid, valor = dados do jogador",
+    "_important": "BOTS NÃO APARECEM AQUI - apenas jogadores humanos",
+    "76561198012345678": {
+      "_comment": "Mesma estrutura de 'player' acima",
+      "name": "Player1",
+      "team": "CT",
+      "state": {
+        "health": 100,
+        "armor": 100,
+        "money": 3500
+      },
+      "match_stats": {
+        "kills": 12,
+        "deaths": 5
+      }
+    },
+    "76561198087654321": {
+      "name": "Player2",
+      "team": "CT",
+      "state": {
+        "health": 75,
+        "armor": 50,
+        "money": 2000
+      },
+      "match_stats": {
+        "kills": 8,
+        "deaths": 7
+      }
+    },
+    "76561198011111111": {
+      "name": "Player3",
+      "team": "T",
+      "state": {
+        "health": 0,
+        "armor": 0,
+        "money": 4500
+      },
+      "match_stats": {
+        "kills": 10,
+        "deaths": 6
+      }
+    },
+    "_usage": {
+      "iterate": "Iterar sobre Object.entries(allplayers) para processar todos",
+      "filter_by_team": "Separar jogadores por team === 'CT' ou team === 'T'",
+      "sort_by_kills": "Ordenar por match_stats.kills para ranking",
+      "calculate_kd": "Calcular K/D: kills / deaths",
+      "team_economy": "Somar money de todos do time para economia total",
+      "alive_count": "Contar quantos têm health > 0 para situação do round"
+    }
+  },
+  
+  "phase_countdowns": {
+    "_description": "Contadores de tempo para diferentes fases",
+    "phase": "bomb",
+    "phase_ends_in": "35.5",
+    "_fields": {
+      "phase": "Fase atual: freezetime, bomb, defuse, timeout_ct, timeout_t",
+      "phase_ends_in": "Segundos restantes (string com decimal)"
+    },
+    "_usage": {
+      "phase_freezetime": "Tempo de compra - mostrar countdown",
+      "phase_bomb": "Bomba plantada - mostrar countdown até explosão",
+      "phase_defuse": "Alguém defusando - mostrar progresso",
+      "phase_timeout": "Timeout tático - mostrar tempo restante"
+    },
+    "_examples": {
+      "freezetime": {
+        "phase": "freezetime",
+        "phase_ends_in": "15.0"
+      },
+      "bomb_planted": {
+        "phase": "bomb",
+        "phase_ends_in": "40.0"
+      },
+      "defusing": {
+        "phase": "defuse",
+        "phase_ends_in": "10.0"
+      }
+    }
+  },
+  
+  "allgrenades": {
+    "_description": "Todas as granadas ativas no mapa",
+    "_structure": "Objeto onde chave = ID da granada, valor = dados",
+    "0": {
+      "owner": "76561198012345678",
+      "position": {
+        "x": 100.0,
+        "y": -200.0,
+        "z": 50.0
+      },
+      "velocity": {
+        "x": 10.5,
+        "y": -5.2,
+        "z": 8.3
+      },
+      "type": "smoke",
+      "effecttime": "15.0",
+      "lifetime": "2.5"
+    },
+    "1": {
+      "owner": "76561198087654321",
+      "position": {
+        "x": 150.0,
+        "y": -250.0,
+        "z": 45.0
+      },
+      "velocity": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "type": "firebomb",
+      "effecttime": "5.5",
+      "lifetime": "7.0"
+    },
+    "_fields": {
+      "owner": "Steam ID de quem lançou a granada",
+      "position": "Posição 3D da granada no mapa",
+      "velocity": "Velocidade da granada (x, y, z)",
+      "type": "Tipo: frag, smoke, flashbang, firebomb, decoy",
+      "effecttime": "Tempo de efeito restante (segundos)",
+      "lifetime": "Tempo de vida total (segundos)"
+    },
+    "_types": {
+      "frag": "HE Grenade (granada explosiva)",
+      "smoke": "Smoke Grenade (granada de fumaça)",
+      "flashbang": "Flashbang (granada de luz)",
+      "firebomb": "Molotov (T) ou Incendiary (CT)",
+      "decoy": "Decoy Grenade (isca)"
+    },
+    "_usage": {
+      "show_on_map": "Plotar granadas no mapa 2D",
+      "countdown": "Mostrar tempo restante de fumaças/molotovs",
+      "owner_name": "Buscar nome do jogador em allplayers[owner]",
+      "utility_usage": "Analisar uso de utility por time/jogador"
+    }
+  },
+  
+  "bomb": {
+    "_description": "Dados da bomba C4",
+    "state": "planted",
+    "position": {
+      "x": 150.0,
+      "y": -300.0,
+      "z": 25.0
+    },
+    "countdown": "35.5",
+    "player": "76561198012345678",
+    "_fields": {
+      "state": "Estado: carried, dropped, planting, planted, defusing, defused, exploded",
+      "position": "Posição 3D da bomba",
+      "countdown": "Segundos até explodir (quando planted)",
+      "player": "Steam ID de quem está com/defusando a bomba"
+    },
+    "_states": {
+      "carried": "Alguém está carregando a bomba",
+      "dropped": "Bomba dropada no chão",
+      "planting": "Alguém está plantando (3.5s)",
+      "planted": "Bomba plantada (40s até explodir)",
+      "defusing": "Alguém está defusando (10s sem kit, 5s com kit)",
+      "defused": "Bomba foi defusada com sucesso",
+      "exploded": "Bomba explodiu"
+    },
+    "_usage": {
+      "state_planted": "Mostrar alerta vermelho e countdown",
+      "state_defusing": "Mostrar quem está defusando e progresso",
+      "position": "Marcar localização da bomba no mapa",
+      "countdown": "Timer preciso até explosão",
+      "player": "Indicar quem está defusando (buscar nome em allplayers)"
+    }
+  },
+  
+  "_implementation_examples": {
+    "_comment": "Exemplos de como usar esses dados",
+    
+    "example_1_detect_ace": {
+      "description": "Detectar quando um jogador faz ACE (5 kills no round)",
+      "code": "if (player.state.round_kills === 5) { showAceAnimation(); }"
+    },
+    
+    "example_2_team_economy": {
+      "description": "Calcular economia total de um time",
+      "code": "const ctMoney = Object.values(allplayers).filter(p => p.team === 'CT').reduce((sum, p) => sum + p.state.money, 0);"
+    },
+    
+    "example_3_alive_players": {
+      "description": "Contar jogadores vivos por time",
+      "code": "const ctAlive = Object.values(allplayers).filter(p => p.team === 'CT' && p.state.health > 0).length;"
+    },
+    
+    "example_4_bomb_countdown": {
+      "description": "Mostrar countdown da bomba",
+      "code": "if (bomb.state === 'planted') { displayTimer(bomb.countdown); }"
+    },
+    
+    "example_5_player_position_map": {
+      "description": "Plotar jogador no mapa 2D",
+      "code": "const mapX = (player.position.x + 2000) / 4000 * mapWidth; const mapY = (player.position.y + 2000) / 4000 * mapHeight;"
+    },
+    
+    "example_6_loss_bonus": {
+      "description": "Calcular loss bonus",
+      "code": "const lossBonus = Math.min(map.team_ct.consecutive_round_losses * 500, 3400);"
+    },
+    
+    "example_7_defuse_time": {
+      "description": "Calcular tempo de defuse",
+      "code": "const defuseTime = player.state.defusekit ? 5 : 10;"
+    },
+    
+    "example_8_headshot_percentage": {
+      "description": "Calcular porcentagem de headshots",
+      "code": "const hsPercent = (player.state.round_killhs / player.state.round_kills * 100).toFixed(1);"
+    }
+  },
+  
+  "_data_not_available": {
+    "_comment": "Dados que NÃO estão disponíveis no GSI",
+    "bots": "Bots não aparecem em allplayers - apenas jogadores humanos",
+    "voice_activity": "Não é possível saber quem está falando no mic",
+    "chat_messages": "Mensagens do chat não são enviadas",
+    "server_commands": "Comandos executados no servidor não são enviados",
+    "demo_recording": "Não é possível controlar gravação de demos via GSI",
+    "player_pings": "Pings/marcações no mapa não são enviados",
+    "buy_menu": "Não é possível saber o que o jogador está vendo no menu de compra"
+  },
+  
+  "_best_practices": {
+    "validate_token": "SEMPRE validar auth.token antes de processar dados",
+    "handle_null": "Muitos campos podem ser null ou undefined - sempre verificar",
+    "throttle_updates": "Usar buffer e throttle no .cfg para não sobrecarregar servidor",
+    "database_indexes": "Criar índices em matchId, steamId, team para queries rápidas",
+    "error_handling": "Sempre usar try/catch ao processar payloads",
+    "logging": "Logar eventos importantes (início/fim de partida, rounds)",
+    "heartbeat": "Usar heartbeat para detectar se conexão ainda está ativa"
+  },
+  
+  "_performance_tips": {
+    "batch_updates": "Agrupar updates de múltiplos jogadores em uma transação",
+    "cache_match_id": "Manter currentMatchId em memória para não buscar no banco",
+    "debounce_frontend": "Usar refetchInterval de 2s no frontend, não menos",
+    "index_queries": "Criar índices para queries frequentes (phase='live')",
+    "connection_pool": "Usar connection pool para banco de dados",
+    "gzip_compression": "Ativar compressão gzip no servidor HTTP"
+  }
+}
+

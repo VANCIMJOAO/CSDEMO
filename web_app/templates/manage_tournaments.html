@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Analyzer - Gerenciar Campeonatos</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar-menu">
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/matches" class="sidebar-link">
+                <a href="/upload" class="sidebar-link">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </a>
+                    <i class="fas fa-gamepad"></i>
+                    <span>Partidas</span>
+                </a>
+                <a href="/players" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/tournaments" class="sidebar-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Torneios</span>
+                </a>
+                <a href="/manage-tournaments" class="sidebar-link active">
+                    <i class="fas fa-cog"></i>
+                    <span>Gerenciar Torneios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="container">
+                <!-- Page Header -->
+                <div class="page-header" style="margin-bottom: var(--space-6);">
+                    <h2 style="font-size: var(--text-3xl); color: var(--text-primary); margin-bottom: var(--space-2);">
+                        <i class="fas fa-trophy"></i> Gerenciar Campeonatos
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: var(--text-base);">
+                        Crie e gerencie campeonatos selecionando times já cadastrados. <a href="/teams" style="color: var(--color-cyan);">Gerenciar Times →</a>
+                    </p>
+                </div>
+
+                <!-- Tournaments List -->
+                <div class="tournament-section">
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                        <h3 class="tournament-section-title">Campeonatos Cadastrados</h3>
+                        <button class="btn-primary" onclick="showAddTournamentModal()" style="display: flex; align-items: center; gap: var(--space-2);">
+                            <i class="fas fa-plus"></i> Novo Campeonato
+                        </button>
+                    </div>
+
+                    <div id="tournamentsList" class="tournaments-grid">
+                        <!-- Tournaments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="tournament-section" style="margin-top: var(--space-8);">
+                    <h3 class="tournament-section-title">Como Usar</h3>
+                    <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: var(--space-5);">
+                        <ol style="color: var(--text-secondary); line-height: 1.8; margin-left: var(--space-4);">
+                            <li>Primeiro, cadastre os times e jogadores em <a href="/teams" style="color: var(--color-cyan);">Gerenciar Times</a></li>
+                            <li>Clique em "Novo Campeonato" para criar um campeonato</li>
+                            <li>Selecione quais times vão participar do campeonato</li>
+                            <li>O sistema criará automaticamente a pasta em <code>demos/campeonatos/[slug]</code></li>
+                            <li>Coloque as demos do campeonato na pasta criada</li>
+                            <li>As demos serão processadas automaticamente e aparecerão na página do torneio</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Tournament Modal -->
+    <div id="addTournamentModal" class="modal" style="display: none;">
+        <div class="modal-content" style="background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: var(--space-6); max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-5); background: var(--surface-primary); padding-bottom: var(--space-3);">
+                <h3 style="font-size: var(--text-2xl); color: var(--text-primary); margin: 0;">
+                    <i class="fas fa-trophy"></i> Novo Campeonato
+                </h3>
+                <button class="modal-close" onclick="hideAddTournamentModal()" style="background: none; border: none; font-size: var(--text-2xl); color: var(--text-secondary); cursor: pointer;">&times;</button>
+            </div>
+
+            <form id="addTournamentForm" class="modal-body">
+                <!-- Basic Info -->
+                <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-5);">
+                    <h4 style="color: var(--text-primary); margin-bottom: var(--space-4); font-size: var(--text-lg);">
+                        <i class="fas fa-info-circle"></i> Informações Básicas
+                    </h4>
+
+                    <div class="form-group" style="margin-bottom: var(--space-4);">
+                        <label for="tournamentName" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Nome do Campeonato:</label>
+                        <input type="text" id="tournamentName" name="tournamentName" required placeholder="Ex: Alcans Santos Games 2024"
+                               style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);"
+                               oninput="updateSlugPreview()">
+                        <small style="color: var(--text-secondary); display: block; margin-top: var(--space-2);">
+                            Slug: <code id="slugPreview" style="color: var(--color-cyan);">alcans-santos-games-2024</code>
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: var(--space-4);">
+                        <label for="tournamentDescription" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Descrição (Opcional):</label>
+                        <textarea id="tournamentDescription" name="tournamentDescription" rows="3" placeholder="Descrição do campeonato..."
+                                  style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary); resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
+                        <div class="form-group">
+                            <label for="tournamentStartDate" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Data de Início:</label>
+                            <input type="date" id="tournamentStartDate" name="tournamentStartDate"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tournamentEndDate" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Data de Fim:</label>
+                            <input type="date" id="tournamentEndDate" name="tournamentEndDate"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: var(--space-4);">
+                        <label for="tournamentLogo" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Logo (URL - Opcional):</label>
+                        <input type="url" id="tournamentLogo" name="tournamentLogo" placeholder="https://example.com/logo.png"
+                               style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4);">
+                        <div class="form-group">
+                            <label for="tournamentPrizePool" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Prize Pool (Opcional):</label>
+                            <input type="text" id="tournamentPrizePool" name="tournamentPrizePool" placeholder="$XX,XXX"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tournamentFormat" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Formato (Opcional):</label>
+                            <select id="tournamentFormat" name="tournamentFormat"
+                                    style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                <option value="">Selecionar...</option>
+                                <option value="Best of 1">Best of 1</option>
+                                <option value="Best of 3">Best of 3</option>
+                                <option value="Best of 5">Best of 5</option>
+                                <option value="Single Elimination">Single Elimination</option>
+                                <option value="Double Elimination">Double Elimination</option>
+                                <option value="Swiss System">Swiss System</option>
+                                <option value="Round Robin">Round Robin</option>
+                                <option value="Group Stage">Group Stage</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tournamentLocation" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">Localização (Opcional):</label>
+                            <input type="text" id="tournamentLocation" name="tournamentLocation" placeholder="Online ou Cidade, País"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4);">
+                        <div class="form-group">
+                            <label for="tournamentPrize1st" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">1º Lugar (Opcional):</label>
+                            <input type="text" id="tournamentPrize1st" name="tournamentPrize1st" placeholder="$XX,XXX"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tournamentPrize2nd" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">2º Lugar (Opcional):</label>
+                            <input type="text" id="tournamentPrize2nd" name="tournamentPrize2nd" placeholder="$XX,XXX"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tournamentPrize3rd" style="display: block; color: var(--text-primary); margin-bottom: var(--space-2); font-weight: 500;">3º-4º Lugar (Opcional):</label>
+                            <input type="text" id="tournamentPrize3rd" name="tournamentPrize3rd" placeholder="$XX,XXX"
+                                   style="width: 100%; padding: var(--space-3); background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teams Selection -->
+                <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-5);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                        <h4 style="color: var(--text-primary); margin: 0; font-size: var(--text-lg);">
+                            <i class="fas fa-users"></i> Times Participantes
+                        </h4>
+                        <a href="/teams" target="_blank" class="btn-secondary" style="font-size: var(--text-sm); text-decoration: none;">
+                            <i class="fas fa-plus"></i> Cadastrar Times
+                        </a>
+                    </div>
+
+                    <div id="teamsSelectionContainer">
+                        <!-- Teams checkboxes will be loaded here -->
+                    </div>
+
+                    <div id="noTeamsMessage" style="color: var(--text-secondary); text-align: center; padding: var(--space-6); display: none;">
+                        <i class="fas fa-info-circle" style="font-size: var(--text-2xl); margin-bottom: var(--space-2); opacity: 0.5;"></i>
+                        <p>Nenhum time cadastrado ainda.</p>
+                        <p>Cadastre times primeiro em <a href="/teams" target="_blank" style="color: var(--color-cyan);">Gerenciar Times</a></p>
+                    </div>
+                </div>
+
+                <!-- Bracket Configuration (8 Teams Double Elimination) -->
+                <div id="bracketConfigSection" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-5); display: none;">
+                    <h4 style="color: var(--text-primary); margin-bottom: var(--space-4); font-size: var(--text-lg);">
+                        <i class="fas fa-sitemap"></i> Configuração do Bracket (Primeira Rodada)
+                    </h4>
+
+                    <p style="color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: var(--space-4);">
+                        Configure os confrontos da primeira rodada do Upper Bracket. O sistema avançará os times automaticamente baseado nos resultados das partidas.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                        <!-- Match 1 -->
+                        <div style="background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4);">
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: var(--space-3); text-align: center;">
+                                <i class="fas fa-trophy"></i> Confronto #1
+                            </div>
+                            <div style="margin-bottom: var(--space-2);">
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 1:</label>
+                                <select id="bracket_match1_team1" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                            <div style="text-align: center; color: var(--text-secondary); margin: var(--space-2) 0;">VS</div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 2:</label>
+                                <select id="bracket_match1_team2" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Match 2 -->
+                        <div style="background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4);">
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: var(--space-3); text-align: center;">
+                                <i class="fas fa-trophy"></i> Confronto #2
+                            </div>
+                            <div style="margin-bottom: var(--space-2);">
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 1:</label>
+                                <select id="bracket_match2_team1" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                            <div style="text-align: center; color: var(--text-secondary); margin: var(--space-2) 0;">VS</div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 2:</label>
+                                <select id="bracket_match2_team2" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Match 3 -->
+                        <div style="background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4);">
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: var(--space-3); text-align: center;">
+                                <i class="fas fa-trophy"></i> Confronto #3
+                            </div>
+                            <div style="margin-bottom: var(--space-2);">
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 1:</label>
+                                <select id="bracket_match3_team1" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                            <div style="text-align: center; color: var(--text-secondary); margin: var(--space-2) 0;">VS</div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 2:</label>
+                                <select id="bracket_match3_team2" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Match 4 -->
+                        <div style="background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-4);">
+                            <div style="color: var(--text-primary); font-weight: 600; margin-bottom: var(--space-3); text-align: center;">
+                                <i class="fas fa-trophy"></i> Confronto #4
+                            </div>
+                            <div style="margin-bottom: var(--space-2);">
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 1:</label>
+                                <select id="bracket_match4_team1" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                            <div style="text-align: center; color: var(--text-secondary); margin: var(--space-2) 0;">VS</div>
+                            <div>
+                                <label style="display: block; color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Time 2:</label>
+                                <select id="bracket_match4_team2" class="bracket-team-select" style="width: 100%; padding: var(--space-2); background: var(--surface-primary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="">Selecionar time...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bracketWarning" style="display: none; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: var(--radius-md); padding: var(--space-3); margin-top: var(--space-4); color: #ff6b6b;">
+                        <i class="fas fa-exclamation-triangle"></i> <span id="bracketWarningText"></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display: flex; gap: var(--space-3); justify-content: flex-end; background: var(--surface-primary); padding-top: var(--space-4); border-top: 1px solid var(--glass-border); margin-top: var(--space-5);">
+                    <button type="button" class="btn-secondary" onclick="hideAddTournamentModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Criar Campeonato
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let availableTeams = [];
+
+        // Load tournaments on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTournaments();
+        });
+
+        // Generate slug from name
+        function generateSlug(name) {
+            return name
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Remove accents
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        function updateSlugPreview() {
+            const name = document.getElementById('tournamentName').value;
+            const slug = generateSlug(name);
+            document.getElementById('slugPreview').textContent = slug || 'slug-do-campeonato';
+        }
+
+        // Load available teams
+        async function loadAvailableTeams() {
+            try {
+                const response = await fetch('/api/teams');
+                availableTeams = await response.json();
+                renderTeamsSelection();
+            } catch (error) {
+                console.error('Erro ao carregar times:', error);
+            }
+        }
+
+        function renderTeamsSelection() {
+            const container = document.getElementById('teamsSelectionContainer');
+            const noMessage = document.getElementById('noTeamsMessage');
+
+            if (availableTeams.length === 0) {
+                container.innerHTML = '';
+                noMessage.style.display = 'block';
+                return;
+            }
+
+            noMessage.style.display = 'none';
+            container.innerHTML = '';
+
+            availableTeams.forEach(team => {
+                const teamDiv = document.createElement('div');
+                teamDiv.style.cssText = 'background: var(--surface-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: var(--space-3); margin-bottom: var(--space-3);';
+
+                const playersCount = team.players ? team.players.length : 0;
+
+                teamDiv.innerHTML = `
+                    <label style="display: flex; align-items: center; cursor: pointer; gap: var(--space-3);">
+                        <input type="checkbox" name="team_id" value="${team.id}" data-team-name="${team.name}" class="team-checkbox" style="width: 20px; height: 20px; cursor: pointer;" onchange="updateBracketConfiguration()">
+                        <div style="display: flex; align-items: center; gap: var(--space-3); flex: 1;">
+                            ${team.logo ?
+                                `<img src="${team.logo}" alt="${team.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` :
+                                `<div style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${team.name.charAt(0).toUpperCase()}</div>`
+                            }
+                            <div style="flex: 1;">
+                                <div style="color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${team.name}</div>
+                                <div style="color: var(--text-secondary); font-size: var(--text-sm);">
+                                    <i class="fas fa-users"></i> ${playersCount} ${playersCount === 1 ? 'jogador' : 'jogadores'}
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                `;
+
+                container.appendChild(teamDiv);
+            });
+        }
+
+        // Update bracket configuration when teams are selected/deselected
+        function updateBracketConfiguration() {
+            const selectedTeams = Array.from(document.querySelectorAll('input[name="team_id"]:checked'));
+            const bracketSection = document.getElementById('bracketConfigSection');
+            const warningDiv = document.getElementById('bracketWarning');
+            const warningText = document.getElementById('bracketWarningText');
+
+            // Show bracket section only if exactly 8 teams are selected
+            if (selectedTeams.length === 8) {
+                bracketSection.style.display = 'block';
+                warningDiv.style.display = 'none';
+
+                // Populate bracket dropdowns
+                populateBracketDropdowns(selectedTeams);
+            } else {
+                bracketSection.style.display = 'none';
+
+                if (selectedTeams.length > 0 && selectedTeams.length !== 8) {
+                    warningDiv.style.display = 'block';
+                    warningText.textContent = `Selecione exatamente 8 times para configurar o bracket. (${selectedTeams.length}/8 selecionados)`;
+                } else {
+                    warningDiv.style.display = 'none';
+                }
+            }
+        }
+
+        // Populate bracket dropdowns with selected teams
+        function populateBracketDropdowns(selectedTeams) {
+            const selectIds = [
+                'bracket_match1_team1', 'bracket_match1_team2',
+                'bracket_match2_team1', 'bracket_match2_team2',
+                'bracket_match3_team1', 'bracket_match3_team2',
+                'bracket_match4_team1', 'bracket_match4_team2'
+            ];
+
+            selectIds.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                const currentValue = select.value;
+
+                // Clear and repopulate
+                select.innerHTML = '<option value="">Selecionar time...</option>';
+
+                selectedTeams.forEach(teamCheckbox => {
+                    const teamId = teamCheckbox.value;
+                    const teamName = teamCheckbox.getAttribute('data-team-name');
+                    const option = document.createElement('option');
+                    option.value = teamId;
+                    option.textContent = teamName;
+                    select.appendChild(option);
+                });
+
+                // Restore previous value if still valid
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // Validate bracket configuration
+        function validateBracketConfiguration() {
+            const selectedTeams = Array.from(document.querySelectorAll('input[name="team_id"]:checked'));
+
+            if (selectedTeams.length !== 8) {
+                return { valid: false, error: 'Selecione exatamente 8 times para o torneio.' };
+            }
+
+            const bracketSection = document.getElementById('bracketConfigSection');
+            if (bracketSection.style.display === 'none') {
+                // No bracket configuration required
+                return { valid: true, bracket: null };
+            }
+
+            // Get all selected bracket teams
+            const bracketTeams = [];
+            for (let i = 1; i <= 4; i++) {
+                const team1 = document.getElementById(`bracket_match${i}_team1`).value;
+                const team2 = document.getElementById(`bracket_match${i}_team2`).value;
+
+                if (!team1 || !team2) {
+                    return { valid: false, error: `Configure todos os confrontos do bracket. Confronto #${i} está incompleto.` };
+                }
+
+                if (team1 === team2) {
+                    return { valid: false, error: `Confronto #${i}: Um time não pode jogar contra si mesmo.` };
+                }
+
+                bracketTeams.push(team1, team2);
+            }
+
+            // Check if all teams are used exactly once
+            const uniqueTeams = [...new Set(bracketTeams)];
+            if (uniqueTeams.length !== 8) {
+                return { valid: false, error: 'Cada time deve aparecer exatamente uma vez no bracket.' };
+            }
+
+            // Check if all selected teams are in bracket
+            const selectedTeamIds = selectedTeams.map(t => t.value);
+            const missingTeams = selectedTeamIds.filter(id => !bracketTeams.includes(id));
+            if (missingTeams.length > 0) {
+                return { valid: false, error: 'Alguns times selecionados não foram incluídos no bracket.' };
+            }
+
+            // Return bracket configuration
+            const bracket = {
+                upper_bracket: {
+                    opening_round: [
+                        {
+                            match_id: 'ub_opening_1',
+                            team1_id: document.getElementById('bracket_match1_team1').value,
+                            team2_id: document.getElementById('bracket_match1_team2').value,
+                            status: 'pending'
+                        },
+                        {
+                            match_id: 'ub_opening_2',
+                            team1_id: document.getElementById('bracket_match2_team1').value,
+                            team2_id: document.getElementById('bracket_match2_team2').value,
+                            status: 'pending'
+                        },
+                        {
+                            match_id: 'ub_opening_3',
+                            team1_id: document.getElementById('bracket_match3_team1').value,
+                            team2_id: document.getElementById('bracket_match3_team2').value,
+                            status: 'pending'
+                        },
+                        {
+                            match_id: 'ub_opening_4',
+                            team1_id: document.getElementById('bracket_match4_team1').value,
+                            team2_id: document.getElementById('bracket_match4_team2').value,
+                            status: 'pending'
+                        }
+                    ]
+                }
+            };
+
+            return { valid: true, bracket };
+        }
+
+        // Tournaments Management
+        async function loadTournaments() {
+            try {
+                const response = await fetch('/api/manage-tournaments');
+                const tournaments = await response.json();
+                displayTournaments(tournaments);
+            } catch (error) {
+                console.error('Erro ao carregar campeonatos:', error);
+            }
+        }
+
+        function displayTournaments(tournaments) {
+            const container = document.getElementById('tournamentsList');
+            container.innerHTML = '';
+
+            if (tournaments.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: var(--space-8);">Nenhum campeonato cadastrado</p>';
+                return;
+            }
+
+            tournaments.forEach(tournament => {
+                const card = document.createElement('div');
+                card.className = 'tournament-card';
+                card.style.cursor = 'default';
+
+                const startDate = tournament.start_date ? new Date(tournament.start_date).toLocaleDateString('pt-BR') : 'N/A';
+                const endDate = tournament.end_date ? new Date(tournament.end_date).toLocaleDateString('pt-BR') : 'N/A';
+                const teamsCount = tournament.team_ids ? tournament.team_ids.length : 0;
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: start; gap: var(--space-4); margin-bottom: var(--space-4);">
+                        <div class="tournament-card-icon">
+                            ${tournament.logo ?
+                                `<img src="${tournament.logo}" alt="${tournament.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` :
+                                '<i class="fas fa-trophy"></i>'
+                            }
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="tournament-card-title" style="margin-bottom: var(--space-2);">${tournament.name}</div>
+                            <div style="color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: var(--space-2);">
+                                <code style="background: var(--surface-secondary); padding: 2px 6px; border-radius: 4px;">${tournament.slug}</code>
+                            </div>
+                            ${tournament.description ?
+                                `<div style="color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: var(--space-2);">${tournament.description}</div>` :
+                                ''
+                            }
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-4); font-size: var(--text-sm); color: var(--text-secondary); flex-wrap: wrap;">
+                        <div>
+                            <i class="fas fa-calendar-alt"></i> ${startDate} - ${endDate}
+                        </div>
+                        <div>
+                            <i class="fas fa-gamepad"></i> ${tournament.total_matches || 0} partidas
+                        </div>
+                        <div>
+                            <i class="fas fa-shield-alt"></i> ${teamsCount} times
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: var(--space-2); justify-content: flex-end;">
+                        <a href="/tournament/${tournament.slug}" class="btn-secondary" onclick="event.stopPropagation();" style="text-decoration: none;">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        <button class="btn-danger" onclick="deleteTournament('${tournament.slug}'); event.stopPropagation();">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Modal Functions
+        async function showAddTournamentModal() {
+            await loadAvailableTeams();
+            document.getElementById('addTournamentModal').style.display = 'flex';
+        }
+
+        function hideAddTournamentModal() {
+            document.getElementById('addTournamentModal').style.display = 'none';
+            document.getElementById('addTournamentForm').reset();
+            document.getElementById('slugPreview').textContent = 'slug-do-campeonato';
+        }
+
+        // API Functions
+        document.getElementById('addTournamentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+
+            // Get selected team IDs
+            const selectedTeamIds = Array.from(document.querySelectorAll('input[name="team_id"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedTeamIds.length === 0) {
+                alert('Por favor, selecione pelo menos um time para o campeonato.');
+                return;
+            }
+
+            // Validate bracket configuration if 8 teams selected
+            let bracketConfig = null;
+            if (selectedTeamIds.length === 8) {
+                const validation = validateBracketConfiguration();
+                if (!validation.valid) {
+                    alert(validation.error);
+                    return;
+                }
+                bracketConfig = validation.bracket;
+            }
+
+            const tournamentData = {
+                name: formData.get('tournamentName'),
+                description: formData.get('tournamentDescription'),
+                start_date: formData.get('tournamentStartDate'),
+                end_date: formData.get('tournamentEndDate'),
+                logo: formData.get('tournamentLogo'),
+                prize_pool: formData.get('tournamentPrizePool'),
+                format: formData.get('tournamentFormat'),
+                location: formData.get('tournamentLocation'),
+                prize_1st: formData.get('tournamentPrize1st'),
+                prize_2nd: formData.get('tournamentPrize2nd'),
+                prize_3rd: formData.get('tournamentPrize3rd'),
+                team_ids: selectedTeamIds,
+                bracket: bracketConfig
+            };
+
+            try {
+                const response = await fetch('/api/manage-tournaments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(tournamentData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    let successMessage = `Campeonato criado com sucesso!\n\nPasta criada em: demos/campeonatos/${result.slug}\n\nTimes selecionados: ${selectedTeamIds.length}`;
+                    if (bracketConfig) {
+                        successMessage += '\n\nBracket configurado: As partidas da primeira rodada estão definidas!';
+                    }
+                    successMessage += '\n\nAgora você pode colocar as demos do campeonato nesta pasta.';
+                    alert(successMessage);
+                    loadTournaments();
+                    hideAddTournamentModal();
+                } else {
+                    const error = await response.json();
+                    alert('Erro ao criar campeonato: ' + (error.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao criar campeonato');
+            }
+        });
+
+        async function deleteTournament(slug) {
+            if (confirm(`Tem certeza que deseja excluir o campeonato "${slug}"?\n\nISTO NÃO VAI EXCLUIR A PASTA OU AS DEMOS, apenas os metadados do campeonato.`)) {
+                try {
+                    const response = await fetch(`/api/manage-tournaments/${slug}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Campeonato excluído com sucesso!');
+                        loadTournaments();
+                    } else {
+                        const error = await response.json();
+                        alert('Erro ao excluir campeonato: ' + (error.error || 'Erro desconhecido'));
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir campeonato');
+                }
+            }
+        }
+
+        // Modal styling
+        const modalStyle = document.createElement('style');
+        modalStyle.textContent = `
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+
+            .modal .modal-content {
+                opacity: 1 !important;
+                background: #1a1f2e !important;
+            }
+
+            .modal .modal-content *,
+            .modal .modal-content *::before,
+            .modal .modal-content *::after {
+                opacity: 1 !important;
+            }
+
+            .modal input,
+            .modal select,
+            .modal textarea,
+            .modal button {
+                opacity: 1 !important;
+            }
+
+            .btn-danger {
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                color: white;
+                border: none;
+                padding: var(--space-2) var(--space-4);
+                border-radius: var(--radius-md);
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: var(--space-2);
+            }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            }
+
+            .modal-content::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .modal-content::-webkit-scrollbar-track {
+                background: var(--surface-secondary);
+                border-radius: 4px;
+            }
+
+            .modal-content::-webkit-scrollbar-thumb {
+                background: var(--glass-border);
+                border-radius: 4px;
+            }
+
+            .modal-content::-webkit-scrollbar-thumb:hover {
+                background: var(--color-cyan);
+            }
+        `;
+        document.head.appendChild(modalStyle);
+    </script>
+</body>
+</html>

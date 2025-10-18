@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Analyzer - Partidas</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar-menu">
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/matches" class="sidebar-link active">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Partidas</span>
+                </a>
+                <a href="/upload" class="sidebar-link">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </a>
+                <a href="/players" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/tournaments" class="sidebar-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Torneios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Carregando partidas...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>🎯 Nenhuma partida registrada ainda</h2>
+            <p>Quando uma partida terminar, ela aparecerá aqui automaticamente!</p>
+            <p style="margin-top: 1rem; color: #495057;">
+                <strong>💡 Dica:</strong> Use <code>demo record nome_da_partida</code> no console do CS2
+            </p>
+        </div>
+
+        <!-- Professional Search & Filters -->
+        <div id="searchSection" class="search-section" style="display: none;">
+            <div class="search-header">
+                <h3>🔍 Busca</h3>
+            </div>
+
+            <div class="search-bar-container">
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" placeholder="Buscar por mapa, jogador ou ID..." id="searchInput" autocomplete="off">
+                    <div class="search-dropdown" id="searchDropdown" style="display: none;">
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters-container" id="filtersContainer" style="display: none;">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Mapa</label>
+                        <select class="filter-select" id="mapFilter">
+                            <option value="">Todos os mapas</option>
+                            <option value="de_dust2">de_dust2</option>
+                            <option value="de_inferno">de_inferno</option>
+                            <option value="de_mirage">de_mirage</option>
+                            <option value="de_nuke">de_nuke</option>
+                            <option value="de_overpass">de_overpass</option>
+                            <option value="de_vertigo">de_vertigo</option>
+                            <option value="de_ancient">de_ancient</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">Todos os status</option>
+                            <option value="nova">Nova</option>
+                            <option value="pronta">Pronta</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Data</label>
+                        <select class="filter-select" id="dateFilter">
+                            <option value="">Todas as datas</option>
+                            <option value="today">Hoje</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mês</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Jogadores</label>
+                        <select class="filter-select" id="playersFilter">
+                            <option value="">Todos</option>
+                            <option value="5v5">5v5</option>
+                            <option value="10v10">10v10</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="btn-primary btn-icon-only" onclick="applyFilters()" title="Aplicar filtros">
+                        ✅
+                    </button>
+                    <button class="btn-secondary btn-icon-only" onclick="clearFilters()" title="Resetar filtros">
+                        🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Tooltip -->
+        <div id="playerTooltip" class="player-tooltip" style="display: none;">
+            <div class="tooltip-content">
+                <div class="player-header">
+                    <div class="player-avatar-large" id="tooltipAvatar">?</div>
+                    <div class="player-info">
+                        <h4 id="tooltipName">Nome do Jogador</h4>
+                        <span id="tooltipTeam">Team</span>
+                    </div>
+                </div>
+                <div class="player-stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Kills</span>
+                        <span class="stat-value" id="tooltipKills">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Deaths</span>
+                        <span class="stat-value" id="tooltipDeaths">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Assists</span>
+                        <span class="stat-value" id="tooltipAssists">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">ADR</span>
+                        <span class="stat-value" id="tooltipADR">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Rating</span>
+                        <span class="stat-value" id="tooltipRating">0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">HS%</span>
+                        <span class="stat-value" id="tooltipHS">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matches List (Table) -->
+        <div id="matchesList" class="matches-list" style="display: none;">
+            <div class="table-wrapper">
+                <table class="matches-table">
+                    <thead>
+                        <tr>
+                            <th class="col-map">Mapa</th>
+                            <th class="col-date">Data</th>
+                            <th class="col-team1">Time 1</th>
+                            <th class="col-score">Score</th>
+                            <th class="col-team2">Time 2</th>
+                            <th class="col-mvp">MVP</th>
+                            <th class="col-status">Status</th>
+                            <th class="col-actions">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matchesTableBody">
+                        <!-- Rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎮 CS2 Demo Analyzer - LAN Party Edition</p>
+            <p>Desenvolvido para análise profissional em tempo real 💪</p>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+
+        // Função para formatar data/hora
+        function formatDateTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Função para formatar tempo relativo
+        function timeAgo(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'agora mesmo';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} min atrás`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h atrás`;
+            return `${Math.floor(seconds / 86400)}d atrás`;
+        }
+
+        // Função para formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Verificar se a partida é nova (menos de 5 minutos)
+        function isNewMatch(processedAt) {
+            const date = new Date(processedAt);
+            const now = new Date();
+            const diffMinutes = (now - date) / 1000 / 60;
+            return diffMinutes < 5;
+        }
+
+        // Carregar jogadores
+        async function loadPlayers() {
+            try {
+                const response = await fetch('/api/steamids');
+                const data = await response.json();
+                allPlayers = data;
+            } catch (error) {
+                console.error('Erro ao carregar jogadores:', error);
+                allPlayers = [];
+            }
+        }
+
+        // Carregar e exibir partidas
+        async function loadMatches() {
+            try {
+                const response = await fetch('/api/matches');
+                const data = await response.json();
+
+                if (data.total === 0) {
+                    // Mostrar estado vazio
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('matchesList').style.display = 'none';
+                    document.getElementById('searchSection').style.display = 'none';
+                } else {
+                    // Renderizar lista de partidas
+                    renderMatches(data.matches);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('matchesList').style.display = 'block';
+                    document.getElementById('searchSection').style.display = 'block';
+
+                    // Carregar jogadores também
+                    await loadPlayers();
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar partidas:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: #dc3545;">❌ Erro ao carregar partidas</p>';
+            }
+        }
+
+        // Renderizar lista de partidas (tabela)
+        function renderMatches(matches) {
+            const tbody = document.getElementById('matchesTableBody');
+            tbody.innerHTML = '';
+
+            // Armazenar todas as partidas para filtros
+            if (matches === allMatches || allMatches.length === 0) {
+                allMatches = [...matches];
+                filteredMatches = [...matches];
+            }
+
+            matches.forEach(match => {
+                const isNew = isNewMatch(match.processed_at);
+                const row = document.createElement('tr');
+                row.className = `match-row ${isNew ? 'new-match' : ''}`;
+                row.onclick = () => viewMatch(match.demo_name);
+
+                // Formatar data
+                const matchDate = new Date(match.processed_at);
+                const dateStr = matchDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                const timeStr = matchDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                // Formatar score e times
+                const team2Score = match.team2_score !== undefined ? match.team2_score : '?';
+                const team3Score = match.team3_score !== undefined ? match.team3_score : '?';
+                const scoreDisplay = (team2Score !== '?' && team3Score !== '?') ? `${team2Score} - ${team3Score}` : '-';
+
+                // Nomes dos times
+                const team2Name = match.team2_name || 'Team 2';
+                const team3Name = match.team3_name || 'Team 3';
+
+                row.innerHTML = `
+                    <td class="col-map">
+                        <div class="map-cell">
+                            <div class="map-icon-small"
+                                 style="background: ${mapImages[match.map] ? `url('${mapImages[match.map]}')` : getMapGradient(match.map)}; background-size: cover; background-position: center;"
+                                 title="${match.map || 'Mapa desconhecido'}"></div>
+                            <span class="map-name">${match.map || 'Unknown'}</span>
+                        </div>
+                    </td>
+                    <td class="col-date">
+                        <div class="date-cell">
+                            <div class="date-value">${dateStr}</div>
+                            <div class="time-value">${timeStr}</div>
+                        </div>
+                    </td>
+                    <td class="col-team1">
+                        <span class="team-name">${team2Name}</span>
+                    </td>
+                    <td class="col-score">
+                        <div class="score-badge">
+                            ${scoreDisplay}
+                            ${match.has_overtime ? `<span class="ot-badge" title="${match.num_overtimes || 1} Overtime(s)">OT${match.num_overtimes > 1 ? match.num_overtimes : ''}</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="col-team2">
+                        <span class="team-name">${team3Name}</span>
+                    </td>
+                    <td class="col-mvp">
+                        <div class="mvp-cell" 
+                             onmouseenter="showPlayerTooltip(event, '${match.top_player || 'Unknown'}', '${match.top_player_team || 'CT'}', ${match.top_player_kills || 0}, ${match.top_player_deaths || 0}, ${match.top_player_assists || 0}, ${match.top_player_adr || 0}, ${match.top_player_rating || 0}, ${match.top_player_hs || 0})"
+                             onmouseleave="hidePlayerTooltip()"
+                             onmousemove="updateTooltipPosition(event)">
+                            <div class="player-avatar-tiny">${(match.top_player || '?')[0].toUpperCase()}</div>
+                            <span class="player-name-small">${match.top_player || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="col-status">
+                        ${isNew ?
+                            '<span class="status-badge new-badge">NOVA</span>' :
+                            '<span class="status-badge ready-badge">PRONTA</span>'
+                        }
+                    </td>
+                    <td class="col-actions">
+                        <button class="action-btn view-details-btn" onclick="event.stopPropagation(); viewMatch('${match.demo_name}')" title="Ver detalhes">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3C4.5 3 1.73 5.11 1 8c.73 2.89 3.5 5 7 5s6.27-2.11 7-5c-.73-2.89-3.5-5-7-5zm0 8.5c-1.93 0-3.5-1.57-3.5-3.5S6.07 4.5 8 4.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Visualizar detalhes da partida
+        function viewMatch(demoName) {
+            window.location.href = `/dashboard/${demoName}`;
+        }
+
+        // Auto-refresh a cada 10 segundos
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            autoRefreshInterval = setInterval(() => {
+                loadMatches();
+            }, 10000); // 10 segundos
+        }
+
+        // Sistema de busca e filtros
+        let allMatches = [];
+        let filteredMatches = [];
+        let allPlayers = [];
+
+        // Mapeamento de mapas para imagens locais
+        const mapImages = {
+            'de_nuke': '/static/imgs/nuke/nuke_outside.jpeg',
+            'de_dust2': '/static/imgs/dust2/dust2_outside.jpeg',
+            'de_inferno': '/static/imgs/inferno/inferno_outside.jpeg',
+            'de_mirage': '/static/imgs/mirage/mirage_outside.jpeg',
+            'de_overpass': '/static/imgs/overpass/overpass_outside.jpeg',
+            'de_vertigo': '/static/imgs/vertigo/vertigo_outside.jpeg',
+            'de_ancient': '/static/imgs/ancient/ancient_outside.jpeg',
+            'de_cache': '/static/imgs/cache/cache_outside.jpeg',
+            'de_train': '/static/imgs/train/train_outside.jpeg',
+            'de_cobblestone': '/static/imgs/cobblestone/cobblestone_outside.jpeg',
+            'de_office': '/static/imgs/office/office_outside.jpeg',
+            'de_italy': '/static/imgs/italy/italy_outside.jpeg',
+            'de_assault': '/static/imgs/assault/assault_outside.jpeg',
+            'de_aztec': '/static/imgs/aztec/aztec_outside.jpeg'
+        };
+
+        // Gradientes coloridos para mapas sem imagem
+        const mapGradients = {
+            'de_nuke': 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+            'de_dust2': 'linear-gradient(135deg, #feca57, #ff9ff3)',
+            'de_inferno': 'linear-gradient(135deg, #ff9ff3, #54a0ff)',
+            'de_mirage': 'linear-gradient(135deg, #5f27cd, #00d2d3)',
+            'de_overpass': 'linear-gradient(135deg, #00d2d3, #ff9f43)',
+            'de_vertigo': 'linear-gradient(135deg, #ff9f43, #ee5a24)',
+            'de_ancient': 'linear-gradient(135deg, #1dd1a1, #55a3ff)',
+            'de_cache': 'linear-gradient(135deg, #55a3ff, #ff6b6b)',
+            'de_train': 'linear-gradient(135deg, #a55eea, #26de81)',
+            'de_cobblestone': 'linear-gradient(135deg, #26de81, #feca57)',
+            'de_office': 'linear-gradient(135deg, #ff6348, #ff4757)',
+            'de_italy': 'linear-gradient(135deg, #ff4757, #ffa502)',
+            'de_assault': 'linear-gradient(135deg, #ffa502, #2ed573)',
+            'de_aztec': 'linear-gradient(135deg, #2ed573, #1e90ff)'
+        };
+
+        // Função para obter gradiente do mapa
+        function getMapGradient(mapName) {
+            return mapGradients[mapName] || 'linear-gradient(135deg, #667eea, #764ba2)';
+        }
+
+        // Alternar visibilidade dos filtros
+        function toggleFilters() {
+            const container = document.getElementById('filtersContainer');
+            const button = document.getElementById('toggleFiltersBtn');
+            const icon = document.getElementById('toggleFiltersIcon');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                icon.textContent = '⚙️';
+                button.classList.add('active');
+            } else {
+                container.style.display = 'none';
+                icon.textContent = '⚙️';
+                button.classList.remove('active');
+            }
+        }
+
+        // Realizar busca ao vivo
+        async function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const dropdown = document.getElementById('searchDropdown');
+            const resultsContainer = document.getElementById('searchResults');
+            const query = searchInput.value.toLowerCase().trim();
+
+            if (query === '') {
+                dropdown.style.display = 'none';
+                filteredMatches = [...allMatches];
+                renderMatches(filteredMatches);
+                return;
+            }
+
+            // Filtrar partidas
+            filteredMatches = allMatches.filter(match => {
+                const mapName = (match.map || '').toLowerCase();
+                const topPlayer = (match.top_player || '').toLowerCase();
+                const demoName = (match.demo_name || '').toLowerCase();
+
+                return mapName.includes(query) ||
+                       topPlayer.includes(query) ||
+                       demoName.includes(query);
+            });
+
+            // Buscar jogadores únicos que correspondem à query
+            const playersMap = new Map();
+
+            // Buscar nos jogadores carregados
+            for (const player of allPlayers) {
+                const playerName = (player.name || '').toLowerCase();
+                if (playerName.includes(query)) {
+                    if (!playersMap.has(player.steamid)) {
+                        playersMap.set(player.steamid, {
+                            name: player.name,
+                            steamid: player.steamid,
+                            photo: player.photo
+                        });
+                    }
+                }
+            }
+
+            const foundPlayers = Array.from(playersMap.values()).slice(0, 5);
+
+            // Mostrar dropdown com resultados
+            const hasResults = filteredMatches.length > 0 || foundPlayers.length > 0;
+
+            if (hasResults) {
+                resultsContainer.innerHTML = '';
+
+                // Seção de Jogadores
+                if (foundPlayers.length > 0) {
+                    const playersSection = document.createElement('div');
+                    playersSection.className = 'search-section-header';
+                    playersSection.innerHTML = '<span>Jogadores</span>';
+                    resultsContainer.appendChild(playersSection);
+
+                    foundPlayers.forEach(player => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.onclick = () => selectPlayer(player.steamid);
+
+                        // Usar foto se disponível, senão usar inicial
+                        let iconStyle = '';
+                        let iconContent = '';
+
+                        if (player.photo) {
+                            iconStyle = `background: url('${player.photo}') center/cover; border: 2px solid #00d9ff;`;
+                            iconContent = '';
+                        } else {
+                            iconStyle = 'background: linear-gradient(135deg, #00d9ff, #0084ff); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;';
+                            iconContent = player.name.charAt(0).toUpperCase();
+                        }
+
+                        resultItem.innerHTML = `
+                            <div class="search-result-icon" style="${iconStyle}">
+                                ${iconContent}
+                            </div>
+                            <div class="search-result-info">
+                                <div class="search-result-title">${player.name}</div>
+                                <div class="search-result-subtitle">Jogador</div>
+                            </div>
+                        `;
+
+                        resultsContainer.appendChild(resultItem);
+                    });
+                }
+
+                // Seção de Partidas
+                if (filteredMatches.length > 0) {
+                    const matchesSection = document.createElement('div');
+                    matchesSection.className = 'search-section-header';
+                    matchesSection.innerHTML = '<span>Partidas</span>';
+                    resultsContainer.appendChild(matchesSection);
+
+                    // Limitar a 5 partidas no dropdown
+                    const limitedResults = filteredMatches.slice(0, 5);
+
+                    limitedResults.forEach(match => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.onclick = () => selectSearchResult(match);
+
+                        const matchDate = new Date(match.processed_at);
+                        const dateStr = matchDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                        const timeStr = matchDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                        const team2Score = match.team2_score !== undefined ? match.team2_score : '?';
+                        const team3Score = match.team3_score !== undefined ? match.team3_score : '?';
+                        const scoreDisplay = (team2Score !== '?' && team3Score !== '?') ? `${team2Score} x ${team3Score}` : (match.total_rounds || '-');
+
+                        const mapBackground = mapImages[match.map] ? `url('${mapImages[match.map]}')` : getMapGradient(match.map);
+
+                        resultItem.innerHTML = `
+                            <div class="search-result-icon" style="background: ${mapBackground}; background-size: cover; background-position: center;"></div>
+                            <div class="search-result-info">
+                                <div class="search-result-title">${match.map || 'Mapa desconhecido'}</div>
+                                <div class="search-result-subtitle">${match.demo_name || 'Demo'}</div>
+                                <div class="search-result-meta">
+                                    <span>${dateStr} ${timeStr}</span>
+                                    <span>•</span>
+                                    <span>Score: ${scoreDisplay}</span>
+                                    <span>•</span>
+                                    <span>MVP: ${match.top_player || '-'}</span>
+                                </div>
+                            </div>
+                        `;
+
+                        resultsContainer.appendChild(resultItem);
+                    });
+                }
+
+                dropdown.style.display = 'block';
+            } else {
+                resultsContainer.innerHTML = '<div class="search-no-results">Nenhum resultado encontrado</div>';
+                dropdown.style.display = 'block';
+            }
+        }
+
+        // Selecionar jogador
+        function selectPlayer(steamid) {
+            window.location.href = `/pro/${steamid}`;
+        }
+
+        // Selecionar resultado da busca
+        function selectSearchResult(match) {
+            viewMatch(match.demo_name);
+        }
+
+        // Esconder dropdown ao clicar fora
+        function hideSearchDropdown(event) {
+            const dropdown = document.getElementById('searchDropdown');
+            const searchInput = document.getElementById('searchInput');
+
+            if (event.target !== searchInput && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            const mapFilter = document.getElementById('mapFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const playersFilter = document.getElementById('playersFilter').value;
+            
+            let matches = [...allMatches];
+            
+            // Filtro por mapa
+            if (mapFilter) {
+                matches = matches.filter(match => match.map === mapFilter);
+            }
+            
+            // Filtro por status
+            if (statusFilter) {
+                matches = matches.filter(match => {
+                    const isNew = isNewMatch(match.processed_at);
+                    return statusFilter === 'nova' ? isNew : !isNew;
+                });
+            }
+            
+            // Filtro por data
+            if (dateFilter) {
+                const now = new Date();
+                matches = matches.filter(match => {
+                    const matchDate = new Date(match.processed_at);
+                    const diffTime = now - matchDate;
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            return diffTime < 24 * 60 * 60 * 1000;
+                        case 'week':
+                            return diffTime < 7 * 24 * 60 * 60 * 1000;
+                        case 'month':
+                            return diffTime < 30 * 24 * 60 * 60 * 1000;
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            // Filtro por jogadores
+            if (playersFilter) {
+                matches = matches.filter(match => {
+                    const totalPlayers = match.total_players || 0;
+                    return playersFilter === '5v5' ? totalPlayers === 10 : totalPlayers === 20;
+                });
+            }
+            
+            filteredMatches = matches;
+            renderMatches(filteredMatches);
+        }
+
+        // Limpar filtros
+        function clearFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const dropdown = document.getElementById('searchDropdown');
+
+            searchInput.value = '';
+            dropdown.style.display = 'none';
+
+            document.getElementById('mapFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('playersFilter').value = '';
+
+            filteredMatches = [...allMatches];
+            renderMatches(filteredMatches);
+        }
+
+        // Configurar funcionalidade de busca
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                // Busca ao vivo enquanto digita
+                searchInput.addEventListener('input', performSearch);
+
+                // Esconder dropdown ao clicar fora
+                document.addEventListener('click', hideSearchDropdown);
+
+                // Prevenir que o dropdown feche ao clicar nele
+                const dropdown = document.getElementById('searchDropdown');
+                if (dropdown) {
+                    dropdown.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                }
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMatches();
+            startAutoRefresh();
+            setupSearch();
+        });
+
+        // Limpar intervalo quando sair da página
+        window.addEventListener('beforeunload', () => {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+
+        // ==========================================
+        // PLAYER TOOLTIP SYSTEM
+        // ==========================================
+        function showPlayerTooltip(event, playerName, team, kills, deaths, assists, adr, rating, hs) {
+            const tooltip = document.getElementById('playerTooltip');
+            
+            if (!tooltip) {
+                console.error('Tooltip element not found!');
+                return;
+            }
+            
+            // Update tooltip content
+            document.getElementById('tooltipName').textContent = playerName;
+            document.getElementById('tooltipTeam').textContent = team;
+            document.getElementById('tooltipKills').textContent = kills;
+            document.getElementById('tooltipDeaths').textContent = deaths;
+            document.getElementById('tooltipAssists').textContent = assists;
+            document.getElementById('tooltipADR').textContent = Math.round(adr);
+            document.getElementById('tooltipRating').textContent = rating.toFixed(2);
+            document.getElementById('tooltipHS').textContent = Math.round(hs) + '%';
+            
+            // Update avatar
+            const avatar = document.getElementById('tooltipAvatar');
+            avatar.textContent = playerName.charAt(0).toUpperCase();
+            
+            // Position tooltip
+            updateTooltipPosition(event);
+            
+            // Show tooltip with display and opacity
+            tooltip.style.display = 'block';
+            setTimeout(() => {
+                tooltip.classList.add('show');
+            }, 10);
+        }
+
+        function hidePlayerTooltip() {
+            const tooltip = document.getElementById('playerTooltip');
+            tooltip.classList.remove('show');
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 200); // Wait for fade out animation
+        }
+
+        function updateTooltipPosition(event) {
+            const tooltip = document.getElementById('playerTooltip');
+            const tooltipContent = tooltip.querySelector('.tooltip-content');
+            
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            
+            const tooltipWidth = 280; // min-width from CSS
+            const tooltipHeight = 200; // estimated height
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Calculate position
+            let left = mouseX + 15; // 15px offset from cursor
+            let top = mouseY - tooltipHeight / 2; // Center vertically
+            
+            // Adjust if tooltip would go off screen
+            if (left + tooltipWidth > viewportWidth) {
+                left = mouseX - tooltipWidth - 15;
+            }
+            
+            if (top < 0) {
+                top = 10;
+            } else if (top + tooltipHeight > viewportHeight) {
+                top = viewportHeight - tooltipHeight - 10;
+            }
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        // ==========================================
+        // TOP PLAYERS SYSTEM
+        // ==========================================
+        async function loadTopPlayers() {
+            try {
+                const response = await fetch('/api/top-players?limit=8');
+                const players = await response.json();
+
+                if (players && players.length > 0) {
+                    renderTopPlayers(players);
+                    document.getElementById('topPlayersSection').style.display = 'block';
+                } else {
+                    document.getElementById('topPlayersSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar top players:', error);
+                document.getElementById('topPlayersSection').style.display = 'none';
+            }
+        }
+
+        function renderTopPlayers(players) {
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = '';
+
+            players.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.onclick = () => window.location.href = `/pro/${player.steamid}`;
+
+                // Determinar avatar (foto ou inicial)
+                let avatarContent = '';
+                if (player.photo && !player.photo.includes('blob:')) {
+                    // Tentar carregar a imagem
+                    avatarContent = `<img src="${player.photo}" alt="${player.name}" onerror="this.style.display='none'; this.parentElement.textContent='${player.name.charAt(0).toUpperCase()}';">`;
+                } else {
+                    const initial = player.name.charAt(0).toUpperCase();
+                    avatarContent = initial;
+                }
+
+                // Determinar time (ou "Sem Time")
+                const teamName = player.team_name || 'Sem Time';
+
+                card.innerHTML = `
+                    <div class="player-card-header">
+                        <div class="player-avatar">
+                            ${avatarContent}
+                        </div>
+                        <div class="player-card-name">${player.name}</div>
+                        <div class="player-card-team">${teamName}</div>
+                    </div>
+                    <div class="player-card-stats">
+                        <div class="player-kd-badge">
+                            <span class="player-kd-label">K/D:</span>
+                            <span>${player.kd_ratio}</span>
+                        </div>
+                    </div>
+                    <div class="player-card-footer">
+                        <a href="/pro/${player.steamid}" class="player-view-btn" onclick="event.stopPropagation()">
+                            Ver Perfil
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <path d="M12 8L6 12V4L12 8Z" fill="currentColor"/>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+    </script>
+        </div>
+    </div>
+</body>
+</html>
+

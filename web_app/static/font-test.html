@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS:GO Icon Font Test</title>
+    <style>
+        @font-face {
+            font-family: 'csgo-icons';
+            src: url('fonts/csgo_icon_font.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .icon-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .icon-box:hover {
+            background: #21262d;
+            border-color: #ffd700;
+            transform: scale(1.05);
+        }
+
+        .icon {
+            font-family: 'csgo-icons';
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .code {
+            font-family: monospace;
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        .weapon-names {
+            margin-top: 40px;
+            padding: 20px;
+            background: #161b22;
+            border-radius: 8px;
+        }
+
+        .weapon-test {
+            font-family: 'csgo-icons';
+            font-size: 24px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #21262d;
+            border-radius: 4px;
+        }
+
+        h1, h2 {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <h1>CS:GO Icon Font Character Map</h1>
+    <p>Teste visual de todos os caracteres da fonte csgo_icon_font.ttf</p>
+
+    <h2>Alfabeto Básico (a-z, A-Z)</h2>
+    <div class="grid" id="alpha-grid"></div>
+
+    <h2>Caracteres Unicode Especiais</h2>
+    <div class="grid" id="unicode-grid"></div>
+
+    <div class="weapon-names">
+        <h2>Teste de Nomes de Armas (usando letras diretas)</h2>
+        <div class="weapon-test">a</div> <!-- AK-47 pode ser 'a' -->
+        <div class="weapon-test">b</div> <!-- AWP pode ser 'b' -->
+        <div class="weapon-test">c</div>
+        <div class="weapon-test">d</div> <!-- Desert Eagle -->
+        <div class="weapon-test">e</div>
+        <div class="weapon-test">f</div>
+        <div class="weapon-test">g</div>
+        <div class="weapon-test">h</div>
+        <div class="weapon-test">i</div>
+        <div class="weapon-test">j</div>
+        <div class="weapon-test">k</div> <!-- Knife -->
+        <div class="weapon-test">m</div> <!-- M4A1 -->
+        <div class="weapon-test">p</div> <!-- P90, pistols -->
+        <div class="weapon-test">A</div>
+        <div class="weapon-test">B</div>
+        <div class="weapon-test">C</div>
+        <div class="weapon-test">D</div>
+        <div class="weapon-test">E</div>
+        <div class="weapon-test">F</div>
+        <div class="weapon-test">G</div>
+        <div class="weapon-test">H</div>
+        <div class="weapon-test">K</div>
+        <div class="weapon-test">M</div>
+        <div class="weapon-test">P</div>
+    </div>
+
+    <script>
+        // Alfabeto básico
+        const alphaGrid = document.getElementById('alpha-grid');
+        for (let i = 65; i <= 90; i++) { // A-Z
+            alphaGrid.innerHTML += `
+                <div class="icon-box">
+                    <span class="icon">${String.fromCharCode(i)}</span>
+                    <div class="code">U+${i.toString(16).toUpperCase().padStart(4, '0')}<br>${String.fromCharCode(i)}</div>
+                </div>
+            `;
+        }
+        for (let i = 97; i <= 122; i++) { // a-z
+            alphaGrid.innerHTML += `
+                <div class="icon-box">
+                    <span class="icon">${String.fromCharCode(i)}</span>
+                    <div class="code">U+${i.toString(16).toUpperCase().padStart(4, '0')}<br>${String.fromCharCode(i)}</div>
+                </div>
+            `;
+        }
+
+        // Unicode especial - área privada comum para ícones
+        const unicodeGrid = document.getElementById('unicode-grid');
+        // Área privada de uso (E000-F8FF)
+        for (let i = 0xE000; i <= 0xE0FF; i++) {
+            unicodeGrid.innerHTML += `
+                <div class="icon-box">
+                    <span class="icon">${String.fromCharCode(i)}</span>
+                    <div class="code">U+${i.toString(16).toUpperCase()}</div>
+                </div>
+            `;
+        }
+
+        // Alguns outros ranges comuns
+        for (let i = 0xF000; i <= 0xF0FF; i++) {
+            unicodeGrid.innerHTML += `
+                <div class="icon-box">
+                    <span class="icon">${String.fromCharCode(i)}</span>
+                    <div class="code">U+${i.toString(16).toUpperCase()}</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

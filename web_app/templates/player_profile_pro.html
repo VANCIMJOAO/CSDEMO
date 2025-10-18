@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ player_info.player_info.name if player_info else 'Jogador' }} - CS2 Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="player-profile-pro-body">
+    <div class="profile-container">
+        <!-- Left Sidebar -->
+        <aside class="player-sidebar">
+            <!-- Logo na sidebar -->
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <div class="player-context-card">
+                <h3>PLAYER</h3>
+                <div class="player-basic-info">
+                    {% if player_info and player_info.player_info.photo %}
+                        <img src="{{ player_info.player_info.photo }}" alt="{{ player_info.player_info.name }}" class="player-avatar-pro">
+                    {% else %}
+                        <div class="player-avatar-pro player-avatar-fallback-pro">
+                            {{ (player_info.player_info.name if player_info else 'J')[:2].upper() }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="player-basic-details">
+                        <h4>{{ player_info.player_info.name if player_info else 'Jogador' }}</h4>
+                        {% if player_info %}
+                            <div class="team-info-pro">
+                                <img src="{{ player_info.team.logo }}"
+                                     alt="{{ player_info.team.name }}"
+                                     class="team-logo-small"
+                                     onerror="console.error('Erro ao carregar logo:', this.src); this.style.display='none';">
+                                <span>{{ player_info.team.name }}</span>
+                            </div>
+                        {% endif %}
+                        <div class="steam-id-pro">Steam ID: {{ steamid }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="player-nav">
+                <a href="#overview" class="player-nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    Visão Geral
+                </a>
+                <a href="#individual" class="player-nav-link">
+                    <i class="fas fa-user"></i>
+                    Individual
+                </a>
+                <a href="#matches" class="player-nav-link">
+                    <i class="fas fa-gamepad"></i>
+                    Partidas
+                </a>
+                <a href="#maps" class="player-nav-link">
+                    <i class="fas fa-map"></i>
+                    Mapas
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="profile-main">
+            <!-- Header dentro do profile-main -->
+            <header class="pro-header">
+                <div class="header-container">
+                    <nav class="main-nav">
+                        <a href="/" class="nav-link active">Início</a>
+                        <a href="/matches" class="nav-link">Partidas</a>
+                        <a href="/teams" class="nav-link">Times</a>
+                        <a href="#" class="nav-link">Estatísticas</a>
+                    </nav>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Buscar jogador...">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Visão Geral Section -->
+            <section id="overview" class="content-section active">
+            <div class="player-overview-section">
+                <!-- Main Rating Circle -->
+                <div class="main-rating-container">
+                    <!-- CT RATING (esquerda) -->
+                    <div class="side-rating ct-rating">
+                        <div class="side-rating-value">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0) * 1.1) }}</div>
+                        <div class="side-rating-label">CT RATING</div>
+                    </div>
+
+                    <!-- RATING (meio) -->
+                    <div class="rating-circle">
+                        <div class="rating-circle-inner">
+                            <div class="rating-main-value">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</div>
+                            <div class="rating-main-label">RATING 1.0</div>
+                            <div class="rating-main-status">OKAY</div>
+                        </div>
+                        <svg class="rating-circle-svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#333" stroke-width="8"/>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#00d9ff" stroke-width="8"
+                                    stroke-dasharray="{{ (aggregated_stats.avg_kd | default(0) * 141.37) | round(0) }} 283"
+                                    stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+                        </svg>
+                    </div>
+
+                    <!-- T RATING (direita) -->
+                    <div class="side-rating t-rating">
+                        <div class="side-rating-value">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0) * 0.9) }}</div>
+                        <div class="side-rating-label">T RATING</div>
+                    </div>
+                </div>
+
+                <!-- Key Statistics -->
+                <div class="key-statistics">
+                    <h3 class="section-title">Estatísticas Principais</h3>
+                    <div class="stat-row-main">
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">TOTAL KILLS</div>
+                            <div class="stat-value-main stat-good">{{ aggregated_stats.total_kills | default(0) }}</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill stat-good" style="width: {{ ((aggregated_stats.total_kills | default(0)) / 100 * 100) | round(0) }}%"></div>
+                            </div>
+                            <div class="stat-status-main">GOOD</div>
+                        </div>
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">TOTAL DEATHS</div>
+                            <div class="stat-value-main stat-poor">{{ aggregated_stats.total_deaths | default(0) }}</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill stat-poor" style="width: {{ ((aggregated_stats.total_deaths | default(0)) / 100 * 100) | round(0) }}%"></div>
+                            </div>
+                            <div class="stat-status-main">POOR</div>
+                        </div>
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">HEADSHOT %</div>
+                            <div class="stat-value-main stat-okay">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill stat-okay" style="width: {{ (aggregated_stats.avg_hs_percent | default(0)) }}%"></div>
+                            </div>
+                            <div class="stat-status-main">OKAY</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row-main">
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">K/D RATIO</div>
+                            <div class="stat-value-main {% if (aggregated_stats.avg_kd | default(0)) >= 1.0 %}stat-good{% elif (aggregated_stats.avg_kd | default(0)) >= 0.8 %}stat-okay{% else %}stat-poor{% endif %}">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill {% if (aggregated_stats.avg_kd | default(0)) >= 1.0 %}stat-good{% elif (aggregated_stats.avg_kd | default(0)) >= 0.8 %}stat-okay{% else %}stat-poor{% endif %}" style="width: {{ ((aggregated_stats.avg_kd | default(0)) / 2.0 * 100) | round(0) }}%"></div>
+                            </div>
+                            <div class="stat-status-main">{% if (aggregated_stats.avg_kd | default(0)) >= 1.0 %}GOOD{% elif (aggregated_stats.avg_kd | default(0)) >= 0.8 %}OKAY{% else %}POOR{% endif %}</div>
+                        </div>
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">ADR</div>
+                            <div class="stat-value-main {% if (aggregated_stats.avg_adr | default(0)) >= 80 %}stat-good{% elif (aggregated_stats.avg_adr | default(0)) >= 60 %}stat-okay{% else %}stat-poor{% endif %}">{{ "%.1f"|format(aggregated_stats.avg_adr | default(0)) }}</div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill {% if (aggregated_stats.avg_adr | default(0)) >= 80 %}stat-good{% elif (aggregated_stats.avg_adr | default(0)) >= 60 %}stat-okay{% else %}stat-poor{% endif %}" style="width: {{ ((aggregated_stats.avg_adr | default(0)) / 100 * 100) | round(0) }}%"></div>
+                            </div>
+                            <div class="stat-status-main">{% if (aggregated_stats.avg_adr | default(0)) >= 80 %}GOOD{% elif (aggregated_stats.avg_adr | default(0)) >= 60 %}OKAY{% else %}POOR{% endif %}</div>
+                        </div>
+                        <div class="stat-item-main">
+                            <div class="stat-label-main">KPR</div>
+                            <div class="stat-value-main stat-okay">
+                                {% if (aggregated_stats.total_rounds | default(0)) > 0 %}
+                                    {{ "%.2f"|format((aggregated_stats.total_kills | default(0)) / (aggregated_stats.total_rounds | default(1))) }}
+                                {% else %}
+                                    0.00
+                                {% endif %}
+                            </div>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill stat-okay" style="width: 68%"></div>
+                            </div>
+                            <div class="stat-status-main">OKAY</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Performance Metrics -->
+                <div class="performance-metrics">
+                    <h3 class="section-title">Métricas de Performance</h3>
+                    <div class="performance-header">
+                        <div class="side-filter">
+                            <button class="side-filter-btn active">Ambos os Lados</button>
+                            <button class="side-filter-btn">CT Side</button>
+                            <button class="side-filter-btn">T Side</button>
+                        </div>
+                        <div class="stats-info">
+                            <span>Stats por: Round</span>
+                            <span>{{ aggregated_stats.total_rounds | default(0) }} rounds</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-grid-hltv">
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                K/D Ratio
+                            </div>
+                            <div class="metric-bar-hltv">
+                                {% set kd_score = ((aggregated_stats.avg_kd | default(0)) / 2.0 * 100) | round(0) %}
+                                <div class="metric-fill-hltv" style="width: {{ [kd_score, 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                Headshot %
+                            </div>
+                            <div class="metric-bar-hltv">
+                                <div class="metric-fill-hltv" style="width: {{ [aggregated_stats.avg_hs_percent | default(0), 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                ADR
+                            </div>
+                            <div class="metric-bar-hltv">
+                                <div class="metric-fill-hltv" style="width: {{ [aggregated_stats.avg_adr | default(0), 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_adr | default(0)) }}</div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-crosshairs"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                Kills/Round
+                            </div>
+                            <div class="metric-bar-hltv">
+                                {% set kpr_score = ((aggregated_stats.total_kills | default(0)) / (aggregated_stats.total_rounds | default(1)) * 50) | round(0) %}
+                                <div class="metric-fill-hltv" style="width: {{ [kpr_score, 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">
+                                {% if (aggregated_stats.total_rounds | default(0)) > 0 %}
+                                    {{ "%.2f"|format((aggregated_stats.total_kills | default(0)) / (aggregated_stats.total_rounds | default(1))) }}
+                                {% else %}
+                                    0.00
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-hand-rock"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                Total Damage
+                            </div>
+                            <div class="metric-bar-hltv">
+                                {% set damage_score = ((aggregated_stats.total_damage | default(0)) / 5000 * 100) | round(0) %}
+                                <div class="metric-fill-hltv" style="width: {{ [damage_score, 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ aggregated_stats.total_damage | default(0) }}</div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                Matches
+                            </div>
+                            <div class="metric-bar-hltv">
+                                {% set matches_score = ((aggregated_stats.total_matches | default(0)) / 10 * 100) | round(0) %}
+                                <div class="metric-fill-hltv" style="width: {{ [matches_score, 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ aggregated_stats.total_matches | default(0) }}</div>
+                        </div>
+                        
+                        <div class="metric-item-hltv">
+                            <div class="metric-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="metric-label-hltv">
+                                Total Rounds
+                            </div>
+                            <div class="metric-bar-hltv">
+                                {% set rounds_score = ((aggregated_stats.total_rounds | default(0)) / 100 * 100) | round(0) %}
+                                <div class="metric-fill-hltv" style="width: {{ [rounds_score, 100] | min }}%"></div>
+                            </div>
+                            <div class="metric-value-hltv">{{ aggregated_stats.total_rounds | default(0) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Table -->
+                <div class="statistics-table-section">
+                    <h3 class="section-title">Estatísticas Detalhadas</h3>
+                    <div class="stats-grid-hltv">
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Total kills</div>
+                            <div class="stats-value-hltv">{{ aggregated_stats.total_kills | default(0) }}</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Rounds jogados</div>
+                            <div class="stats-value-hltv">{{ (aggregated_stats.total_matches | default(0) * 20) }}</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Headshot %</div>
+                            <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Kills / round</div>
+                            <div class="stats-value-hltv">
+                                {% if (aggregated_stats.total_rounds | default(0)) > 0 %}
+                                    {{ "%.2f"|format((aggregated_stats.total_kills | default(0)) / (aggregated_stats.total_rounds | default(1))) }}
+                                {% else %}
+                                    0.00
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Total de deaths</div>
+                            <div class="stats-value-hltv">{{ aggregated_stats.total_deaths | default(0) }}</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Avg Kill Distance</div>
+                            <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_kill_distance | default(0)) }}</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">ADR médio</div>
+                            <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_adr | default(0)) }}</div>
+                        </div>
+                        <div class="stats-item-hltv">
+                            <div class="stats-label-hltv">Partidas jogadas</div>
+                            <div class="stats-value-hltv">{{ aggregated_stats.total_matches | default(0) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Matches -->
+                <div class="recent-matches-section">
+                    <h3>Partidas Recentes</h3>
+                    {% if matches_played %}
+                        <div class="matches-table-pro">
+                            <div class="match-header">
+                                <div class="match-header-cell">Mapa</div>
+                                <div class="match-header-cell">Data</div>
+                                <div class="match-header-cell">K</div>
+                                <div class="match-header-cell">D</div>
+                                <div class="match-header-cell">K/D</div>
+                                <div class="match-header-cell">ADR</div>
+                                <div class="match-header-cell">HS%</div>
+                                <div class="match-header-cell">Ação</div>
+                            </div>
+                            {% for match in matches_played %}
+                            <div class="match-row-pro">
+                                <div class="match-cell">
+                                    <span class="map-name">{{ match.map }}</span>
+                                </div>
+                                <div class="match-cell">
+                                    <span class="match-date">{{ match.date[:10] if match.date else 'N/A' }}</span>
+                                </div>
+                                <div class="match-cell">{{ match.player_stats.total_kills or 0 }}</div>
+                                <div class="match-cell">{{ match.player_stats.deaths or 0 }}</div>
+                                <div class="match-cell">
+                                    <span class="kd-value {% if (match.player_stats.kd_ratio or 0) >= 1.0 %}positive{% else %}negative{% endif %}">
+                                        {{ "%.2f"|format(match.player_stats.kd_ratio or 0) }}
+                                    </span>
+                                </div>
+                                <div class="match-cell">{{ "%.0f"|format(match.player_stats.adr or 0) }}</div>
+                                <div class="match-cell">{{ "%.1f"|format(match.player_stats.hs_percent or 0) }}%</div>
+                                <div class="match-cell">
+                                    <a href="/dashboard/{{ match.demo_name }}" class="match-action-btn">
+                                        <i class="fas fa-eye"></i>
+                                        Ver
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-matches">
+                            <p>Nenhuma partida encontrada para este jogador.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Individual Section -->
+            <section id="individual" class="content-section">
+                <div class="individual-section">
+                <div class="performance-metrics">
+                    <h2 style="color: #fff; font-size: 24px; margin-bottom: 30px;">Estatísticas Individuais</h2>
+
+                    <!-- Statistics Table -->
+                    <div class="statistics-table-section">
+                        <div class="stats-grid-hltv">
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Total kills</div>
+                                <div class="stats-value-hltv">{{ aggregated_stats.total_kills | default(0) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Total de deaths</div>
+                                <div class="stats-value-hltv">{{ aggregated_stats.total_deaths | default(0) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">K/D Ratio</div>
+                                <div class="stats-value-hltv">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Headshot %</div>
+                                <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">ADR médio</div>
+                                <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_adr | default(0)) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Kills / round</div>
+                                <div class="stats-value-hltv">
+                                    {% if (aggregated_stats.total_rounds | default(0)) > 0 %}
+                                        {{ "%.2f"|format((aggregated_stats.total_kills | default(0)) / (aggregated_stats.total_rounds | default(1))) }}
+                                    {% else %}
+                                        0.00
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Rounds jogados</div>
+                                <div class="stats-value-hltv">{{ aggregated_stats.total_rounds | default(0) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Partidas jogadas</div>
+                                <div class="stats-value-hltv">{{ aggregated_stats.total_matches | default(0) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Total Damage</div>
+                                <div class="stats-value-hltv">{{ aggregated_stats.total_damage | default(0) }}</div>
+                            </div>
+                            <div class="stats-item-hltv">
+                                <div class="stats-label-hltv">Avg Kill Distance</div>
+                                <div class="stats-value-hltv">{{ "%.1f"|format(aggregated_stats.avg_kill_distance | default(0)) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </section>
+
+            <!-- Partidas Section -->
+            <section id="matches" class="content-section">
+                <div class="matches-section">
+                <div class="recent-matches-section">
+                    <h3>Partidas Recentes</h3>
+                    {% if matches_played %}
+                        <div class="matches-table-pro">
+                            <div class="match-header">
+                                <div class="match-header-cell">Mapa</div>
+                                <div class="match-header-cell">Data</div>
+                                <div class="match-header-cell">K</div>
+                                <div class="match-header-cell">D</div>
+                                <div class="match-header-cell">K/D</div>
+                                <div class="match-header-cell">ADR</div>
+                                <div class="match-header-cell">HS%</div>
+                                <div class="match-header-cell">Ação</div>
+                            </div>
+                            {% for match in matches_played %}
+                            <div class="match-row-pro">
+                                <div class="match-cell">
+                                    <span class="map-name">{{ match.map }}</span>
+                                </div>
+                                <div class="match-cell">
+                                    <span class="match-date">{{ match.date[:10] if match.date else 'N/A' }}</span>
+                                </div>
+                                <div class="match-cell">{{ match.player_stats.total_kills or 0 }}</div>
+                                <div class="match-cell">{{ match.player_stats.deaths or 0 }}</div>
+                                <div class="match-cell">
+                                    <span class="kd-value {% if (match.player_stats.kd_ratio or 0) >= 1.0 %}positive{% else %}negative{% endif %}">
+                                        {{ "%.2f"|format(match.player_stats.kd_ratio or 0) }}
+                                    </span>
+                                </div>
+                                <div class="match-cell">{{ "%.0f"|format(match.player_stats.adr or 0) }}</div>
+                                <div class="match-cell">{{ "%.1f"|format(match.player_stats.hs_percent or 0) }}%</div>
+                                <div class="match-cell">
+                                    <a href="/dashboard/{{ match.demo_name }}" class="match-action-btn">
+                                        <i class="fas fa-eye"></i>
+                                        Ver
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-matches">
+                            <p>Nenhuma partida encontrada para este jogador.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                </div>
+            </section>
+
+            <!-- Mapas Section -->
+            <section id="maps" class="content-section">
+                <div class="maps-section">
+                <div class="performance-metrics">
+                    <h2 style="color: #fff; font-size: 24px; margin-bottom: 30px;">Estatísticas por Mapa</h2>
+
+                    {% if maps_stats %}
+                        <div class="map-cards-grid">
+                            {% for map_name, stats in maps_stats.items() %}
+                                <div class="map-card">
+                                    {% set map_slug = map_name.lower() %}
+                                    <div class="map-card-image" style="background-image: url('/static/imgs/{{ map_slug }}/{{ map_slug }}_outside.jpeg');">
+                                        <div class="map-card-overlay">
+                                            <h3 class="map-card-title">{{ map_name }}</h3>
+                                            <p class="map-card-matches">{{ stats.matches }} partida{{ 's' if stats.matches > 1 else '' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="map-card-stats">
+                                        <div class="map-stat-row">
+                                            <div class="map-stat-item">
+                                                <span class="map-stat-label">K</span>
+                                                <span class="map-stat-value kills">{{ stats.kills }}</span>
+                                            </div>
+                                            <div class="map-stat-item">
+                                                <span class="map-stat-label">D</span>
+                                                <span class="map-stat-value deaths">{{ stats.deaths }}</span>
+                                            </div>
+                                            <div class="map-stat-item">
+                                                <span class="map-stat-label">K/D</span>
+                                                <span class="map-stat-value kd">{{ "%.2f"|format(stats.kills / stats.deaths) if stats.deaths > 0 else "0.00" }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="map-stat-row">
+                                            <div class="map-stat-item">
+                                                <span class="map-stat-label">HS%</span>
+                                                <span class="map-stat-value hs">{{ "%.1f"|format((stats.hs / stats.kills * 100)) if stats.kills > 0 else "0.0" }}%</span>
+                                            </div>
+                                            <div class="map-stat-item">
+                                                <span class="map-stat-label">ADR</span>
+                                                <span class="map-stat-value adr">{{ "%.1f"|format(stats.damage / stats.matches / 20) if stats.matches > 0 else "0.0" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-matches">
+                            <p>Nenhuma partida encontrada para este jogador.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Debug: verificar se script está carregando
+        console.log('🔧 Script carregado');
+        console.log('🔍 Seções encontradas:', document.querySelectorAll('.content-section').length);
+        console.log('🔍 Links de navegação encontrados:', document.querySelectorAll('.player-nav-link').length);
+
+        // Navigation with section switching
+        document.querySelectorAll('.player-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('🖱️ Link clicado:', link.textContent.trim());
+
+                // Update active link
+                document.querySelectorAll('.player-nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Get target section from href
+                const targetId = link.getAttribute('href').substring(1);
+                console.log('🎯 Target ID:', targetId);
+
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                    console.log('❌ Escondendo seção:', section.id);
+                });
+
+                // Show target section
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    console.log('✅ Mostrando seção:', targetId);
+                } else {
+                    console.error('⚠️ Seção não encontrada:', targetId);
+                }
+            });
+        });
+
+        // Side filter functionality (CT/T/Both)
+        document.querySelectorAll('.side-filter-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                // Remove active from all buttons
+                document.querySelectorAll('.side-filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active to clicked button
+                btn.classList.add('active');
+
+                const sideText = btn.textContent.trim();
+                let side = 'both';
+
+                if (sideText === 'CT Side') {
+                    side = 'CT';
+                } else if (sideText === 'T Side') {
+                    side = 'T';
+                }
+
+                console.log('Side selecionado:', side);
+
+                // Buscar estatísticas filtradas da API
+                try {
+                    const steamid = '{{ steamid }}';
+                    const response = await fetch(`/api/player/${steamid}/stats?side=${side}`);
+                    const stats = await response.json();
+
+                    console.log('Stats recebidas:', stats);
+
+                    // Atualizar os cards com as novas estatísticas
+                    updateMetricCards(stats);
+                } catch (error) {
+                    console.error('Erro ao buscar estatísticas:', error);
+                }
+            });
+        });
+
+        function updateMetricCards(stats) {
+            // Atualizar K/D Ratio
+            const kdCard = document.querySelector('.metric-item-hltv:nth-child(1) .metric-value-hltv');
+            if (kdCard) {
+                kdCard.textContent = stats.avg_kd.toFixed(2);
+            }
+
+            // Atualizar Headshot %
+            const hsCard = document.querySelector('.metric-item-hltv:nth-child(2) .metric-value-hltv');
+            if (hsCard) {
+                hsCard.textContent = stats.avg_hs_percent.toFixed(1) + '%';
+            }
+
+            // Atualizar ADR
+            const adrCard = document.querySelector('.metric-item-hltv:nth-child(3) .metric-value-hltv');
+            if (adrCard) {
+                adrCard.textContent = stats.avg_adr.toFixed(1);
+            }
+
+            // Atualizar Kills/Round
+            const kprCard = document.querySelector('.metric-item-hltv:nth-child(4) .metric-value-hltv');
+            if (kprCard) {
+                kprCard.textContent = stats.avg_kills_per_round.toFixed(2);
+            }
+
+            // Atualizar Total Damage
+            const dmgCard = document.querySelector('.metric-item-hltv:nth-child(5) .metric-value-hltv');
+            if (dmgCard) {
+                dmgCard.textContent = stats.total_damage;
+            }
+
+            // Atualizar Matches
+            const matchesCard = document.querySelector('.metric-item-hltv:nth-child(6) .metric-value-hltv');
+            if (matchesCard) {
+                matchesCard.textContent = stats.total_matches;
+            }
+
+            // Atualizar Total Rounds
+            const roundsCard = document.querySelector('.metric-item-hltv:nth-child(7) .metric-value-hltv');
+            if (roundsCard) {
+                roundsCard.textContent = stats.total_rounds;
+            }
+
+            // Atualizar as barras de progresso
+            updateProgressBars(stats);
+        }
+
+        function updateProgressBars(stats) {
+            // Atualizar K/D bar
+            const kdBar = document.querySelector('.metric-item-hltv:nth-child(1) .metric-fill-hltv');
+            if (kdBar) {
+                const kdScore = Math.min((stats.avg_kd / 2.0 * 100), 100);
+                kdBar.style.width = kdScore + '%';
+            }
+
+            // Atualizar HS% bar
+            const hsBar = document.querySelector('.metric-item-hltv:nth-child(2) .metric-fill-hltv');
+            if (hsBar) {
+                const hsScore = Math.min(stats.avg_hs_percent, 100);
+                hsBar.style.width = hsScore + '%';
+            }
+
+            // Atualizar ADR bar
+            const adrBar = document.querySelector('.metric-item-hltv:nth-child(3) .metric-fill-hltv');
+            if (adrBar) {
+                const adrScore = Math.min(stats.avg_adr, 100);
+                adrBar.style.width = adrScore + '%';
+            }
+
+            // Atualizar Kills/Round bar
+            const kprBar = document.querySelector('.metric-item-hltv:nth-child(4) .metric-fill-hltv');
+            if (kprBar) {
+                const kprScore = Math.min((stats.avg_kills_per_round * 50), 100);
+                kprBar.style.width = kprScore + '%';
+            }
+
+            // Atualizar Total Damage bar
+            const dmgBar = document.querySelector('.metric-item-hltv:nth-child(5) .metric-fill-hltv');
+            if (dmgBar) {
+                const dmgScore = Math.min((stats.total_damage / 5000 * 100), 100);
+                dmgBar.style.width = dmgScore + '%';
+            }
+
+            // Atualizar Matches bar
+            const matchesBar = document.querySelector('.metric-item-hltv:nth-child(6) .metric-fill-hltv');
+            if (matchesBar) {
+                const matchesScore = Math.min((stats.total_matches / 10 * 100), 100);
+                matchesBar.style.width = matchesScore + '%';
+            }
+
+            // Atualizar Total Rounds bar
+            const roundsBar = document.querySelector('.metric-item-hltv:nth-child(7) .metric-fill-hltv');
+            if (roundsBar) {
+                const roundsScore = Math.min((stats.total_rounds / 100 * 100), 100);
+                roundsBar.style.width = roundsScore + '%';
+            }
+        }
+    </script>
+</body>
+</html>

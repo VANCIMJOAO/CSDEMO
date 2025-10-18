@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if player_info %}
+            {{ player_info.player_info.name }} - Perfil do Jogador
+        {% else %}
+            Jogador {{ steamid }} - Perfil
+        {% endif %}
+    </title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>CS2 Analyzer</span>
+            </a>
+            <nav class="nav">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Início
+                </a>
+                <a href="/matches" class="nav-link">
+                    <i class="fas fa-list"></i>
+                    Partidas
+                </a>
+                <a href="/teams" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Times
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Player Header -->
+            <div class="player-profile-header">
+                <div class="player-avatar-section">
+                    {% if player_info and player_info.player_info.photo %}
+                        <img src="{{ player_info.player_info.photo }}" alt="Avatar" class="player-profile-avatar">
+                    {% else %}
+                        <div class="player-profile-avatar-fallback">
+                            {% if player_info %}
+                                {{ player_info.player_info.name[:2].upper() }}
+                            {% else %}
+                                {{ steamid[-4:] }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="player-info-section">
+                    <h1 class="player-name">
+                        {% if player_info %}
+                            {{ player_info.player_info.name }}
+                        {% else %}
+                            Jogador {{ steamid }}
+                        {% endif %}
+                    </h1>
+                    
+                    {% if player_info and player_info.team %}
+                        <div class="player-team-info">
+                            <img src="{{ player_info.team.logo or '/static/default-team.png' }}" alt="{{ player_info.team.name }}" class="team-logo-profile">
+                            <span class="team-name-profile">{{ player_info.team.name }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="player-steam-info">
+                        <span class="steam-id">Steam ID: {{ steamid }}</span>
+                    </div>
+                </div>
+                
+                <div class="player-stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ aggregated_stats.total_matches | default(0) }}</div>
+                        <div class="stat-label">Partidas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</div>
+                        <div class="stat-label">K/D Médio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ "%.0f"|format(aggregated_stats.avg_adr | default(0)) }}</div>
+                        <div class="stat-label">ADR Médio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</div>
+                        <div class="stat-label">HS% Médio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Stats -->
+            <div class="stats-sections">
+                <!-- Overall Performance -->
+                <div class="stats-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-trophy"></i>
+                        Desempenho Geral
+                    </h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total de Kills:</span>
+                            <span class="stat-value">{{ aggregated_stats.total_kills | default(0) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total de Deaths:</span>
+                            <span class="stat-value">{{ aggregated_stats.total_deaths | default(0) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total de Damage:</span>
+                            <span class="stat-value">{{ aggregated_stats.total_damage | default(0) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total de Headshots:</span>
+                            <span class="stat-value">{{ aggregated_stats.total_hs | default(0) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">K/D Ratio:</span>
+                            <span class="stat-value kd-ratio">{{ "%.2f"|format(aggregated_stats.avg_kd | default(0)) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">ADR Médio:</span>
+                            <span class="stat-value damage">{{ "%.0f"|format(aggregated_stats.avg_adr | default(0)) }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">HS% Médio:</span>
+                            <span class="stat-value">{{ "%.1f"|format(aggregated_stats.avg_hs_percent | default(0)) }}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Partidas Jogadas:</span>
+                            <span class="stat-value">{{ aggregated_stats.total_matches | default(0) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match History -->
+                <div class="stats-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-history"></i>
+                        Histórico de Partidas
+                    </h3>
+                    
+                    {% if matches_played %}
+                        <div class="matches-table-container">
+                            <table class="matches-history-table">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-map"></i> Mapa</th>
+                                        <th><i class="fas fa-calendar"></i> Data</th>
+                                        <th><i class="fas fa-crosshairs"></i> Kills</th>
+                                        <th><i class="fas fa-skull"></i> Deaths</th>
+                                        <th><i class="fas fa-percentage"></i> K/D</th>
+                                        <th><i class="fas fa-bolt"></i> ADR</th>
+                                        <th><i class="fas fa-bullseye"></i> HS%</th>
+                                        <th><i class="fas fa-cog"></i> Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for match in matches_played %}
+                                    <tr class="match-row">
+                                        <td class="map-cell">{{ match.map or 'N/A' }}</td>
+                                        <td class="date-cell">{{ match.date[:10] if match.date else 'N/A' }}</td>
+                                        <td class="kills-cell">{{ match.player_stats.total_kills or 0 }}</td>
+                                        <td class="deaths-cell">{{ match.player_stats.deaths or 0 }}</td>
+                                        <td class="kd-cell">{{ "%.2f"|format(match.player_stats.kd_ratio or 0) }}</td>
+                                        <td class="adr-cell">{{ "%.0f"|format(match.player_stats.adr or 0) }}</td>
+                                        <td class="hs-cell">{{ "%.1f"|format(match.player_stats.hs_percent or 0) }}%</td>
+                                        <td class="actions-cell">
+                                            <a href="/dashboard/{{ match.demo_name }}" class="btn btn-sm btn-primary btn-view-match">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Ver Partida</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-gamepad"></i>
+                            <h3>Nenhuma partida encontrada</h3>
+                            <p>Este jogador ainda não tem partidas registradas no sistema.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 CS2 Analyzer. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Adicionar efeitos interativos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Efeito hover nas linhas da tabela
+            const matchRows = document.querySelectorAll('.match-row');
+            matchRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

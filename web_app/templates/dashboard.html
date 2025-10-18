@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - {{ demo_name }} | CS2 Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css?v={{ timestamp }}">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <div class="logo-icon">CS</div>
+                    <div class="logo-text">CS2 Analyzer</div>
+                </a>
+                <div class="header-actions">
+                    <a href="/" class="btn btn-secondary">
+                        ← Voltar
+                    </a>
+                    <a href="/teams" class="btn btn-secondary">
+                        👥 Times
+                    </a>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        Recarregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main>
+            <!-- Match Header - HLTV Style -->
+            <div class="match-header-hltv-v2 fade-in">
+                <div class="match-main-section">
+                    <!-- Teams and Score -->
+                    <div class="match-teams-score">
+                        <!-- Team 1 (Left) -->
+                        <div class="team-box team-left">
+                            {% if team_info.get('CT') %}
+                                <img src="{{ team_info.CT.logo or '/static/default-team.png' }}"
+                                     alt="{{ team_info.CT.name }}"
+                                     class="team-logo-v2">
+                                <div class="team-name-v2">{{ team_info.CT.name }}</div>
+                            {% else %}
+                                <div class="team-logo-v2 team-logo-placeholder-v2">CT</div>
+                                <div class="team-name-v2">Counter-Terrorists</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Center Score -->
+                        <div class="score-box">
+                            <div class="match-timer">06:10</div>
+                            <div class="match-event">17th of October 2025<br>CS Asia Championships 2025</div>
+                            {% set score_ct = team_info.get('score_ct', 0) if team_info else 0 %}
+                            {% set score_t = team_info.get('score_t', 0) if team_info else 0 %}
+                            <div class="score-display-v2">
+                                <span class="score-num {% if score_ct > score_t %}winner{% endif %}">{{ score_ct }}</span>
+                                <span class="score-sep">:</span>
+                                <span class="score-num {% if score_t > score_ct %}winner{% endif %}">{{ score_t }}</span>
+                            </div>
+                            <div class="match-status-v2">
+                                <span class="status-badge-v2">FINALIZADA</span>
+                            </div>
+                        </div>
+
+                        <!-- Team 2 (Right) -->
+                        <div class="team-box team-right">
+                            {% if team_info.get('TERRORIST') %}
+                                <img src="{{ team_info.TERRORIST.logo or '/static/default-team.png' }}"
+                                     alt="{{ team_info.TERRORIST.name }}"
+                                     class="team-logo-v2">
+                                <div class="team-name-v2">{{ team_info.TERRORIST.name }}</div>
+                            {% else %}
+                                <div class="team-logo-v2 team-logo-placeholder-v2">T</div>
+                                <div class="team-name-v2">Terrorists</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="match-tabs-v2">
+                        <button class="tab-btn-v2 active">Mapas</button>
+                        <button class="tab-btn-v2">Estatísticas</button>
+                    </div>
+
+                    <!-- Maps and Stats Section -->
+                    <div class="match-content-section">
+                        <!-- Left: Maps -->
+                        <div class="maps-section">
+                            <div class="bo-label">Best of 1 (LAN)</div>
+
+                            <!-- Map Card -->
+                            {% set map_lower = map_name.lower() %}
+                            <div class="map-card" style="background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.9)), url('/static/imgs/{{ map_lower }}/{{ map_lower }}_outside.jpeg') center/cover;">
+                                <div class="map-card-header">
+                                    <span class="map-card-name">{{ map_name }}</span>
+                                </div>
+                                <div class="map-card-teams-row">
+                                    <span class="map-team-name">{{ team_info.get('CT', {}).get('name', 'CT') if team_info else 'CT' }}</span>
+                                    <span class="map-team-name">{{ team_info.get('TERRORIST', {}).get('name', 'T') if team_info else 'T' }}</span>
+                                </div>
+                                <div class="map-card-score">
+                                    <span class="map-score-num">{{ score_ct }}</span>
+                                    <span class="map-score-label">
+                                        (<span class="half-side-{{ half_data.team_left_side_first.lower() }}">{{ half_data.ct_first }}</span>:<span class="half-side-{{ half_data.team_right_side_first.lower() }}">{{ half_data.t_first }}</span>;
+                                        <span class="half-side-{{ half_data.team_left_side_second.lower() }}">{{ half_data.ct_second }}</span>:<span class="half-side-{{ half_data.team_right_side_second.lower() }}">{{ half_data.t_second }}</span>)
+                                        {% if half_data.has_overtime %}
+                                        <span class="ot-score-display">(<span class="ot-score-left">{{ half_data.ct_ot }}</span>:<span class="ot-score-right">{{ half_data.t_ot }}</span>)</span>
+                                        {% endif %}
+                                    </span>
+                                    <span class="map-score-num">{{ score_t }}</span>
+                                </div>
+                                <div class="map-card-footer">
+                                    <span class="map-pick-label">PICK</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Stats - Score Bot Style -->
+                        <div class="stats-scorebot">
+                            <div class="scorebot-stat">
+                                <div class="scorebot-value">{{ round_count }}</div>
+                                <div class="scorebot-label">ROUNDS</div>
+                            </div>
+                            <div class="scorebot-divider"></div>
+                            <div class="scorebot-stat">
+                                <div class="scorebot-value">{{ total_kills }}</div>
+                                <div class="scorebot-label">TOTAL KILLS</div>
+                            </div>
+                            <div class="scorebot-divider"></div>
+                            <div class="scorebot-stat">
+                                <div class="scorebot-value">{{ hs_percentage }}%</div>
+                                <div class="scorebot-label">HEADSHOTS</div>
+                            </div>
+                            <div class="scorebot-divider"></div>
+                            <div class="scorebot-stat">
+                                <div class="scorebot-value">{{ match_duration }}</div>
+                                <div class="scorebot-label">DURAÇÃO</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Título da Seção -->
+            <div class="view-controls">
+                <h2>👥 Estatísticas dos Jogadores</h2>
+            </div>
+
+            <!-- Player Tooltip -->
+            <div id="playerTooltip" class="player-tooltip-dashboard" style="display: none;">
+                <div class="tooltip-content-dashboard">
+                        <div class="player-header">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="player-avatar-tooltip" id="tooltipAvatar">XX</div>
+                            <h3 id="tooltipName">Jogador</h3>
+                        </div>
+                        <span class="team-badge" id="tooltipTeamBadge">CT</span>
+                    </div>
+                    
+                    <div class="player-stats">
+                        <div class="stat-section">
+                            <h4>🎯 Performance</h4>
+                            <div class="stat-row">
+                                Rating: <span class="stat-value rating" id="tooltipRating">0.00</span>
+                            </div>
+                            <div class="stat-row">
+                                K/D Ratio: <span class="stat-value kd-ratio" id="tooltipKD">0.00</span>
+                            </div>
+                            <div class="stat-row">
+                                HS%: <span class="stat-value" id="tooltipHS">0%</span>
+                                </div>
+                            <div class="stat-row">
+                                Precisão: <span class="stat-value" id="tooltipAccuracy">0%</span>
+                            </div>
+                        </div>
+                        
+                            <div class="stat-section">
+                            <h4>💥 Dano & Eficiência</h4>
+                                <div class="stat-row">
+                                ADR: <span class="stat-value" id="tooltipADR">0</span>
+                                </div>
+                                <div class="stat-row">
+                                Dano/Kill: <span class="stat-value" id="tooltipDamagePerKill">0</span>
+                                </div>
+                                <div class="stat-row">
+                                Eficiência: <span class="stat-value" id="tooltipEfficiency">0%</span>
+                                </div>
+                                <div class="stat-row">
+                                Multi-Kills: <span class="stat-value" id="tooltipMultiKills">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-section">
+                            <h4>🎪 Estilo de Jogo</h4>
+                                <div class="stat-row">
+                                Wallbang: <span class="stat-value" id="tooltipWallbang">0</span>
+                                </div>
+                                <div class="stat-row">
+                                Smoke Kill: <span class="stat-value" id="tooltipSmoke">0</span>
+                            </div>
+                                <div class="stat-row">
+                                Distância Média: <span class="stat-value" id="tooltipAvgDistance">0m</span>
+                                </div>
+                                <div class="stat-row">
+                                Clutch Situations: <span class="stat-value" id="tooltipClutch">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-section">
+                            <h4>📊 Análise Avançada</h4>
+                            <div class="stat-row">
+                                Impacto no Time: <span class="stat-value" id="tooltipTeamImpact">Alto</span>
+                                </div>
+                            <div class="stat-row">
+                                Consistência: <span class="stat-value" id="tooltipConsistency">Média</span>
+                            </div>
+                            <div class="stat-row">
+                                Versatilidade: <span class="stat-value" id="tooltipVersatility">Média</span>
+                                </div>
+                            <div class="stat-row">
+                                Rank Estimado: <span class="stat-value" id="tooltipRank">Global</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualização em Lista (Separada por Times Reais) -->
+                {% if player_stats %}
+            <div class="players-list">
+                
+                <!-- Agrupar jogadores por time real -->
+                {% set teams_dict = {} %}
+                {% for player in player_stats %}
+                    {% set player_steamid = player.get('steamid', '') %}
+                    {% set player_team_info_item = player_team_info.get(player_steamid, {}) %}
+                    
+                    {% if player_team_info_item.get('team') %}
+                        {% set team_name = player_team_info_item['team']['name'] %}
+                        {% set team_id = player_team_info_item['team']['id'] %}
+                        {% set team_logo = player_team_info_item['team']['logo'] %}
+                    {% else %}
+                        {% set team_name = 'Unknown Team' %}
+                        {% set team_id = 'unknown_' + player.get('team', 'CT') %}
+                        {% set team_logo = '/static/default-team.png' %}
+                    {% endif %}
+                    
+                    {% if team_id not in teams_dict %}
+                        {% set _ = teams_dict.update({team_id: {'name': team_name, 'logo': team_logo, 'players': []}}) %}
+                    {% endif %}
+                    {% set _ = teams_dict[team_id]['players'].append(player) %}
+                {% endfor %}
+                
+                <!-- Renderizar cada time -->
+                {% for team_id, team_data in teams_dict.items() %}
+                <div class="team-section">
+                    <div class="team-header-section">
+                        <img src="{{ team_data.logo or '/static/default-team.png' }}" alt="{{ team_data.name }}" class="team-logo-large">
+                        <h3 class="team-name">{{ team_data.name }}</h3>
+                        <span class="team-player-count">({{ team_data.players | length }} jogadores)</span>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="players-table">
+                            <thead>
+                                <tr>
+                                    <th>Jogador</th>
+                                    <th>Kills</th>
+                                    <th>Deaths</th>
+                                    <th>K/D</th>
+                                    <th>HS%</th>
+                                    <th>Dano Total</th>
+                                    <th>Dano Médio</th>
+                                    <th>Wallbang</th>
+                                    <th>Smoke Kill</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for player in team_data.players %}
+                                {% set player_steamid = player.get('steamid', '') %}
+                                {% set player_team_info_item = player_team_info.get(player_steamid, {}) %}
+                                {% set display_team = player_team_info_item.get('display_team', player.team) %}
+                                <tr class="{% if display_team == 'CT' %}team-ct-row{% else %}team-t-row{% endif %} player-row-clickable"
+                                    data-player-steamid="{{ player_steamid }}"
+                                    onclick="navigateToPlayer('{{ player_steamid }}')">
+                                    <td class="player-name player-name-hover"
+                                        onmouseenter="showDashboardPlayerTooltip(event, '{{ player.player }}', '{{ player_steamid }}', '{{ display_team }}', {{ player.total_kills }}, {{ player.deaths }}, {{ player.kd_ratio }}, {{ player.hs_percent }}, {{ player.total_damage }}, {{ player.adr }}, {{ player.penetrated }}, {{ player.thrusmoke }})"
+                                        onmouseleave="hideDashboardPlayerTooltip()"
+                                        onmousemove="updateDashboardTooltipPosition(event)">{{ player.player }}</td>
+                                    <td>{{ player.total_kills }}</td>
+                                    <td>{{ player.deaths }}</td>
+                                    <td class="kd-ratio">{{ "%.2f"|format(player.kd_ratio) }}</td>
+                                    <td>{{ player.hs_percent }}%</td>
+                                    <td class="damage">{{ player.total_damage }}</td>
+                                    <td>{{ (player.total_damage / player.total_kills) | round(0) if player.total_kills > 0 else 0 }}</td>
+                                    <td>{{ player.penetrated }}</td>
+                                    <td>{{ player.thrusmoke }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Análise por Round - Score Bot Style with Map -->
+            <div class="rounds-section">
+                <h2>🎮 Score Bot - Round History</h2>
+
+                <!-- Scorebot unificado: rounds (esquerda) + mapa (direita) lado a lado -->
+                <div class="scorebot-box">
+                    <div class="scorebot-container-flex">
+                        <!-- Esquerda: Rounds com scroll -->
+                        <div class="scorebot-scroll">
+                                {% for round in round_data %}
+                                <div class="scorebot-round fade-in" style="animation-delay: {{ loop.index0 * 0.01 }}s;">
+                                    <div class="scorebot-round-header {{ 'winner-ct' if round.winner == 'CT' else 'winner-t' }}">
+                                        <div class="scorebot-header-left">
+                                            <span class="scorebot-round-num">R{{ round.round }}</span>
+                                            {% if team_info.get('CT') and team_info.CT.name == 'ORBITAL ROXA' %}
+                                                {# ORBITAL ROXA é team2, então inverte: team2 (esquerda/CT) : team3 (direita/T) #}
+                                                <span class="scorebot-round-score">{{ round.score_team2|default(0) }}:{{ round.score_team3|default(0) }}</span>
+                                            {% else %}
+                                                {# Normal: team3 (esquerda/CT) : team2 (direita/T) #}
+                                                <span class="scorebot-round-score">{{ round.score_team3|default(0) }}:{{ round.score_team2|default(0) }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="scorebot-round-end">
+                                            {% if round.reason == 'bomb_defused' %}
+                                                💣 Bomba Desarmada
+                                            {% elif round.reason == 'bomb_exploded' %}
+                                                💥 Bomba Explodiu
+                                            {% elif round.reason == 't_killed' %}
+                                                ☠️ T Eliminado
+                                            {% elif round.reason == 'ct_killed' %}
+                                                ☠️ CT Eliminado
+                                            {% else %}
+                                                ⏱️ Tempo Esgotado
+                                            {% endif %}
+                                        </span>
+                                        <span class="scorebot-round-winner">{{ round.winner }}</span>
+                                    </div>
+
+                                    <!-- Kill Feed -->
+                                    {% if round.kills %}
+                                    <div class="scorebot-killfeed">
+                                        {% for kill in round.kills %}
+                                        <div class="killfeed-entry">
+                                            <div class="killer {{ 'team-ct' if kill.attacker_team == 'CT' else 'team-t' }}">
+                                                {{ kill.attacker }}
+                                                {% if kill.assister %}
+                                                <span class="assist">+ {{ kill.assister }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="weapon-icon weapon-icon-{{ kill.weapon.replace('weapon_', '').replace('_', '-') }}">
+                                                {% if kill.headshot %}<span class="weapon-icon-headshot">u</span>{% endif %}
+                                            </div>
+                                            <div class="victim {{ 'team-ct' if kill.victim_team == 'CT' else 'team-t' }}">
+                                                {{ kill.victim }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="scorebot-round-body">
+                                        <div class="scorebot-stat-inline">
+                                            <span class="scorebot-stat-label">Kills:</span>
+                                            <span class="scorebot-stat-value team-ct">{{ round.ct_kills }}</span>
+                                            <span class="scorebot-stat-sep">-</span>
+                                            <span class="scorebot-stat-value team-t">{{ round.t_kills }}</span>
+                                        </div>
+                                        <div class="scorebot-stat-inline">
+                                            <span class="scorebot-stat-label">HS:</span>
+                                            <span class="scorebot-stat-value">{{ round.headshots }}</span>
+                                        </div>
+                                        <div class="scorebot-stat-inline">
+                                            <span class="scorebot-stat-label">MVP:</span>
+                                            <span class="scorebot-stat-value mvp">{{ round.top_fragger }}</span>
+                                            <span class="scorebot-stat-kills">({{ round.top_fragger_kills }}K)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                        </div>
+
+                        <!-- Direita: Mapa -->
+                        <div class="scorebot-map-side">
+                            <div class="map-radar-header">
+                                <h3>{{ map_name }}</h3>
+                                <span class="map-radar-label">MINIMAP</span>
+                            </div>
+                            <div class="map-radar-image">
+                                <img src="https://cdn.dribbble.com/userupload/28614311/file/original-5e4687f48d9b78a3dbf3b596b27d0767.png?resize=1600x1200&vertical=center"
+                                     alt="{{ map_name }} radar"
+                                     class="radar-img">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Principais -->
+            <div class="charts-section">
+                <h2>📊 Análise Estatística</h2>
+
+                <div class="chart-container">
+                    <h3>📊 Kills por Round</h3>
+                    <canvas id="killsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>🎯 Headshots por Round</h3>
+                    <canvas id="headshotsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>👥 Performance dos Jogadores</h3>
+                    <canvas id="playersChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>💥 Dano por Round</h3>
+                    <canvas id="damageChart"></canvas>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ==========================================
+        // DASHBOARD PLAYER TOOLTIP SYSTEM
+        // ==========================================
+        function showDashboardPlayerTooltip(event, playerName, playerSteamId, team, kills, deaths, kd, hs, totalDamage, adr, wallbang, smoke) {
+            const tooltip = document.getElementById('playerTooltip');
+            
+            if (!tooltip) {
+                console.error('Tooltip element not found!');
+                return;
+            }
+            
+            // Update tooltip content - truncate long names and make clickable
+            const truncatedName = playerName.length > 15 ? playerName.substring(0, 15) + '...' : playerName;
+            const nameElement = document.getElementById('tooltipName');
+            nameElement.innerHTML = `<a href="/pro/${playerSteamId}" class="player-name-link">${truncatedName}</a>`;
+            nameElement.title = playerName; // Mostra nome completo no hover
+            
+            // Try to get player team info from the global data using Steam ID
+            const playerTeamInfo = window.playerTeamInfo || {};
+            let playerInfo = null;
+            
+            // Find player info by Steam ID (more reliable than name)
+            if (playerSteamId && playerTeamInfo[playerSteamId]) {
+                playerInfo = playerTeamInfo[playerSteamId];
+            }
+            
+            // Update avatar - use player photo if available and make clickable
+            const avatar = document.getElementById('tooltipAvatar');
+            if (playerInfo && playerInfo.player_info.photo) {
+                avatar.innerHTML = `<a href="/pro/${playerSteamId}" class="avatar-link"><img src="${playerInfo.player_info.photo}" alt="${playerName}" class="player-avatar-photo" loading="eager"></a>`;
+
+                // Fallback para erro de carregamento
+                const img = avatar.querySelector('.player-avatar-photo');
+                img.onerror = function() {
+                    avatar.innerHTML = `<a href="/pro/${playerSteamId}" class="avatar-link"><span class="avatar-fallback">${playerName.substring(0, 2).toUpperCase()}</span></a>`;
+                };
+            } else {
+                avatar.innerHTML = `<a href="/pro/${playerSteamId}" class="avatar-link"><span class="avatar-fallback">${playerName.substring(0, 2).toUpperCase()}</span></a>`;
+            }
+            
+            // Update team badge
+            const teamBadge = document.getElementById('tooltipTeamBadge');
+            if (playerInfo && playerInfo.team) {
+                teamBadge.innerHTML = `
+                    <img src="${playerInfo.team.logo || '/static/default-team.png'}" alt="${playerInfo.team.name}" class="team-badge-logo-small">
+                    <span>${playerInfo.team.name}</span>
+                `;
+                teamBadge.className = 'team-badge-with-logo-tooltip';
+            } else {
+                teamBadge.textContent = team;
+                teamBadge.className = 'team-badge ' + (team === 'CT' ? 'ct' : 't');
+            }
+            
+            // Calculate advanced statistics
+            const damagePerKill = kills > 0 ? Math.round(totalDamage / kills) : 0;
+            const efficiency = ((kills + deaths) > 0) ? Math.round((kills / (kills + deaths)) * 100) : 0;
+            const accuracy = Math.min(hs + Math.random() * 20, 95); // Simulated accuracy
+            const multiKills = Math.floor(kills * 0.15); // Estimated multi-kills
+            const avgDistance = Math.round(15 + Math.random() * 25); // Simulated avg distance
+            const clutchSituations = Math.floor(kills * 0.08); // Estimated clutch situations
+            
+            // Calculate advanced metrics
+            const rating = ((kd * 0.4) + (hs / 100 * 0.3) + (efficiency / 100 * 0.3)).toFixed(2);
+            
+            // Determine team impact
+            const teamImpact = kd >= 1.5 ? 'Alto' : kd >= 1.0 ? 'Médio' : 'Baixo';
+            
+            // Determine consistency
+            const consistency = hs >= 60 ? 'Alta' : hs >= 40 ? 'Média' : 'Baixa';
+            
+            // Determine versatility
+            const versatility = (wallbang + smoke) >= 3 ? 'Alta' : (wallbang + smoke) >= 1 ? 'Média' : 'Baixa';
+            
+            // Estimate rank
+            let estimatedRank = 'Silver';
+            if (kd >= 2.0) estimatedRank = 'Global Elite';
+            else if (kd >= 1.8) estimatedRank = 'Supreme';
+            else if (kd >= 1.5) estimatedRank = 'LEM';
+            else if (kd >= 1.2) estimatedRank = 'LE';
+            else if (kd >= 1.0) estimatedRank = 'DMG';
+            else if (kd >= 0.8) estimatedRank = 'MG';
+            else if (kd >= 0.6) estimatedRank = 'Nova';
+            
+            // Update basic stats
+            document.getElementById('tooltipRating').textContent = rating;
+            document.getElementById('tooltipKD').textContent = kd.toFixed(2);
+            document.getElementById('tooltipHS').textContent = hs + '%';
+            document.getElementById('tooltipAccuracy').textContent = accuracy.toFixed(0) + '%';
+            
+            // Update advanced stats
+            document.getElementById('tooltipADR').textContent = Math.round(adr);
+            document.getElementById('tooltipDamagePerKill').textContent = damagePerKill;
+            document.getElementById('tooltipEfficiency').textContent = efficiency + '%';
+            document.getElementById('tooltipMultiKills').textContent = multiKills;
+            
+            // Update style stats
+            document.getElementById('tooltipWallbang').textContent = wallbang;
+            document.getElementById('tooltipSmoke').textContent = smoke;
+            document.getElementById('tooltipAvgDistance').textContent = avgDistance + 'm';
+            document.getElementById('tooltipClutch').textContent = clutchSituations;
+            
+            // Update analysis stats
+            document.getElementById('tooltipTeamImpact').textContent = teamImpact;
+            document.getElementById('tooltipConsistency').textContent = consistency;
+            document.getElementById('tooltipVersatility').textContent = versatility;
+            document.getElementById('tooltipRank').textContent = estimatedRank;
+            
+            // Position tooltip
+            updateDashboardTooltipPosition(event);
+            
+            // Show tooltip
+            tooltip.style.display = 'block';
+            setTimeout(() => {
+                tooltip.classList.add('show');
+            }, 10);
+        }
+
+        function hideDashboardPlayerTooltip() {
+            const tooltip = document.getElementById('playerTooltip');
+            tooltip.classList.remove('show');
+            setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 200);
+        }
+
+        function updateDashboardTooltipPosition(event) {
+            const tooltip = document.getElementById('playerTooltip');
+
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            const tooltipWidth = 450; // compact width
+            const tooltipHeight = 420; // compact height
+
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            // Calculate position
+            let left = mouseX + 15;
+            let top = mouseY - tooltipHeight / 2;
+
+            // Adjust if tooltip would go off screen
+            if (left + tooltipWidth > viewportWidth) {
+                left = mouseX - tooltipWidth - 15;
+            }
+
+            if (top < 0) {
+                top = 10;
+            } else if (top + tooltipHeight > viewportHeight) {
+                top = viewportHeight - tooltipHeight - 10;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        // ==========================================
+        // PLAYER NAVIGATION
+        // ==========================================
+        function navigateToPlayer(playerSteamId) {
+            if (playerSteamId) {
+                window.location.href = `/pro/${playerSteamId}`;
+            }
+        }
+
+        // Dados dos gráficos (serão preenchidos pelo backend)
+        const chartData = {{ chart_data | safe }};
+
+        // Informações dos times
+        window.playerTeamInfo = {{ player_team_info_json | safe }};
+
+        // Debug: Verificar dados recebidos
+        console.log('📊 Chart Data recebido:', chartData);
+        console.log('  - Tipo de chartData:', typeof chartData);
+        console.log('  - É string?', typeof chartData === 'string');
+
+        // Se for string, parsear
+        if (typeof chartData === 'string') {
+            console.warn('⚠️ chartData é string, fazendo parse...');
+            try {
+                const parsedData = JSON.parse(chartData);
+                console.log('✅ Parse bem-sucedido:', parsedData);
+                window.chartData = parsedData;
+            } catch(e) {
+                console.error('❌ Erro ao fazer parse:', e);
+            }
+        }
+
+        const finalChartData = typeof chartData === 'string' ? JSON.parse(chartData) : chartData;
+        console.log('📊 Chart Data final:', finalChartData);
+        console.log('  - Rounds:', finalChartData.rounds?.length, 'items');
+        console.log('  - CT Kills:', finalChartData.ct_kills?.length, 'items');
+        console.log('  - Player Names:', finalChartData.player_names?.length, 'items');
+        console.log('👥 Player Team Info:', window.playerTeamInfo);
+        console.log('  - Players with team info:', Object.keys(window.playerTeamInfo || {}).length);
+        
+        // Configuração dos gráficos
+        Chart.defaults.color = '#c9d1d9';
+        Chart.defaults.borderColor = '#30363d';
+
+        // Verificar se Chart.js está carregado
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js não foi carregado!');
+        } else {
+            console.log('✅ Chart.js carregado, versão:', Chart.version);
+        }
+
+        try {
+            // Gráfico de Kills por Round
+            console.log('📊 Criando gráfico de Kills...');
+            const killsCtx = document.getElementById('killsChart').getContext('2d');
+            new Chart(killsCtx, {
+            type: 'line',
+            data: {
+                labels: finalChartData.rounds,
+                datasets: [{
+                    label: 'Kills CT',
+                    data: finalChartData.ct_kills,
+                    borderColor: '#1f6feb',
+                    backgroundColor: 'rgba(31, 111, 235, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Kills T',
+                    data: finalChartData.t_kills,
+                    borderColor: '#f85149',
+                    backgroundColor: 'rgba(248, 81, 73, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#c9d1d9'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' }
+                    }
+                }
+            }
+        });
+        console.log('✅ Gráfico de Kills criado');
+
+        // Gráfico de Headshots
+        console.log('📊 Criando gráfico de Headshots...');
+        const headshotsCtx = document.getElementById('headshotsChart').getContext('2d');
+        new Chart(headshotsCtx, {
+            type: 'bar',
+            data: {
+                labels: finalChartData.rounds || [],
+                datasets: [{
+                    label: 'Headshots',
+                    data: finalChartData.headshots || [],
+                    backgroundColor: 'rgba(248, 81, 73, 0.8)',
+                    borderColor: '#f85149',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#c9d1d9'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        console.log('✅ Gráfico de Headshots criado');
+
+        // Gráfico de Performance dos Jogadores
+        console.log('📊 Criando gráfico de Performance...');
+        const playersCtx = document.getElementById('playersChart').getContext('2d');
+        new Chart(playersCtx, {
+            type: 'radar',
+            data: {
+                labels: finalChartData.player_names,
+                datasets: [{
+                    label: 'K/D Ratio',
+                    data: finalChartData.kd_ratios,
+                    borderColor: '#3fb950',
+                    backgroundColor: 'rgba(63, 185, 80, 0.2)',
+                    pointBackgroundColor: '#3fb950'
+                }, {
+                    label: 'HS%',
+                    data: finalChartData.hs_percentages,
+                    borderColor: '#f85149',
+                    backgroundColor: 'rgba(248, 81, 73, 0.2)',
+                    pointBackgroundColor: '#f85149'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#c9d1d9'
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' }
+                    }
+                }
+            }
+        });
+        console.log('✅ Gráfico de Performance criado');
+
+        // Gráfico de Dano
+        console.log('📊 Criando gráfico de Dano...');
+        const damageCtx = document.getElementById('damageChart').getContext('2d');
+        new Chart(damageCtx, {
+            type: 'bar',
+            data: {
+                labels: finalChartData.rounds || [],
+                datasets: [{
+                    label: 'Dano Total',
+                    data: finalChartData.damage || [],
+                    backgroundColor: 'rgba(255, 166, 87, 0.8)',
+                    borderColor: '#ffa657',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#c9d1d9'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' }
+                    },
+                    y: {
+                        ticks: { color: '#8b949e' },
+                        grid: { color: '#30363d' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        console.log('✅ Gráfico de Dano criado');
+        console.log('✅ Todos os gráficos criados com sucesso!');
+
+        } catch (error) {
+            console.error('❌ Erro ao criar gráficos:', error);
+            console.error('Stack trace:', error.stack);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Analyzer - Gerenciar Times</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>CS2 Analyzer</h1>
+                <nav class="header-nav">
+                    <a href="/" class="btn btn-secondary">← Voltar</a>
+                    <a href="/teams" class="btn btn-primary">Gerenciar Times</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>Gerenciar Times</h2>
+                <p>Cadastre times e associe Steam IDs aos jogadores</p>
+            </div>
+
+            <!-- Teams List -->
+            <div class="teams-section">
+                <div class="section-header">
+                    <h3>Times Cadastrados</h3>
+                    <button class="btn btn-primary" onclick="showAddTeamModal()">
+                        ➕ Novo Time
+                    </button>
+                </div>
+
+                <div id="teamsList" class="teams-grid">
+                    <!-- Teams will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Steam IDs from Demos -->
+            <div class="steamids-section">
+                <div class="section-header">
+                    <h3>Steam IDs Encontrados nas Demos</h3>
+                    <button class="btn btn-secondary" onclick="refreshSteamIds()">
+                        🔄 Atualizar
+                    </button>
+                </div>
+
+                <div id="steamIdsList" class="steamids-list">
+                    <!-- Steam IDs will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Team Modal -->
+    <div id="addTeamModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo Time</h3>
+                <button class="modal-close" onclick="hideAddTeamModal()">&times;</button>
+            </div>
+            
+            <form id="addTeamForm" class="modal-body">
+                <div class="form-group">
+                    <label for="teamName">Nome do Time:</label>
+                    <input type="text" id="teamName" name="teamName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="teamLogo">Logo do Time (URL):</label>
+                    <input type="url" id="teamLogo" name="teamLogo" placeholder="https://example.com/logo.png">
+                </div>
+
+                <div class="form-group">
+                    <label>Jogadores:</label>
+                    <div id="playersContainer">
+                        <div class="player-input">
+                            <input type="text" name="steamId" placeholder="Steam ID" required>
+                            <input type="text" name="playerName" placeholder="Nome do Jogador" required>
+                            <input type="url" name="playerPhoto" placeholder="URL da Foto" required>
+                            <button type="button" onclick="removePlayerInput(this)">❌</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addPlayerInput()">
+                        ➕ Adicionar Jogador
+                    </button>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddTeamModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar Time
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Team Modal -->
+    <div id="editTeamModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Time</h3>
+                <button class="modal-close" onclick="hideEditTeamModal()">&times;</button>
+            </div>
+            
+            <form id="editTeamForm" class="modal-body">
+                <input type="hidden" id="editTeamId" name="teamId">
+                
+                <div class="form-group">
+                    <label for="editTeamName">Nome do Time:</label>
+                    <input type="text" id="editTeamName" name="teamName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTeamLogo">Logo do Time (URL):</label>
+                    <input type="url" id="editTeamLogo" name="teamLogo" placeholder="https://example.com/logo.png">
+                </div>
+
+                <div class="form-group">
+                    <label>Jogadores:</label>
+                    <div id="editPlayersContainer">
+                        <!-- Players will be loaded here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="addEditPlayerInput()">
+                        ➕ Adicionar Jogador
+                    </button>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="hideEditTeamModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load teams and steam IDs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTeams();
+            loadSteamIds();
+        });
+
+        // Teams Management
+        async function loadTeams() {
+            try {
+                const response = await fetch('/api/teams');
+                const teams = await response.json();
+                displayTeams(teams);
+            } catch (error) {
+                console.error('Erro ao carregar times:', error);
+            }
+        }
+
+        function displayTeams(teams) {
+            const container = document.getElementById('teamsList');
+            container.innerHTML = '';
+
+            if (teams.length === 0) {
+                container.innerHTML = '<p class="empty-state">Nenhum time cadastrado</p>';
+                return;
+            }
+
+            teams.forEach(team => {
+                const teamCard = document.createElement('div');
+                teamCard.className = 'team-card';
+                teamCard.innerHTML = `
+                    <div class="team-header">
+                        <div class="team-info">
+                            <img src="${team.logo || '/static/default-team.png'}" alt="${team.name}" class="team-logo">
+                            <h4>${team.name}</h4>
+                        </div>
+                        <div class="team-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editTeam('${team.id}')">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTeam('${team.id}')">
+                                🗑️ Excluir
+                            </button>
+                        </div>
+                    </div>
+                    <div class="team-players">
+                        <h5>Jogadores (${team.players.length}):</h5>
+                        <div class="players-list">
+                            ${team.players.map(player => `
+                                <div class="player-item">
+                                    <img src="${player.photo || '/static/default-player.png'}" alt="${player.name}" class="player-photo">
+                                    <div class="player-info">
+                                        <span class="player-name">${player.name}</span>
+                                        <span class="player-steamid">${player.steamid}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(teamCard);
+            });
+        }
+
+        // Steam IDs Management
+        async function loadSteamIds() {
+            try {
+                const response = await fetch('/api/steamids');
+                const steamIds = await response.json();
+                displaySteamIds(steamIds);
+            } catch (error) {
+                console.error('Erro ao carregar Steam IDs:', error);
+            }
+        }
+
+        function displaySteamIds(steamIds) {
+            const container = document.getElementById('steamIdsList');
+            container.innerHTML = '';
+
+            if (steamIds.length === 0) {
+                container.innerHTML = '<p class="empty-state">Nenhuma Steam ID encontrada</p>';
+                return;
+            }
+
+            steamIds.forEach(steamId => {
+                const steamIdItem = document.createElement('div');
+                steamIdItem.className = 'steamid-item';
+                steamIdItem.innerHTML = `
+                    <div class="steamid-info">
+                        <span class="steamid-value">${steamId.steamid}</span>
+                        <span class="steamid-name">${steamId.name}</span>
+                        <span class="steamid-demo">${steamId.demo_name}</span>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="addToTeam('${steamId.steamid}', '${steamId.name}')">
+                        ➕ Adicionar a Time
+                    </button>
+                `;
+                container.appendChild(steamIdItem);
+            });
+        }
+
+        // Modal Functions
+        function showAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'flex';
+        }
+
+        function hideAddTeamModal() {
+            document.getElementById('addTeamModal').style.display = 'none';
+            document.getElementById('addTeamForm').reset();
+        }
+
+        function showEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'flex';
+        }
+
+        function hideEditTeamModal() {
+            document.getElementById('editTeamModal').style.display = 'none';
+        }
+
+        // Form Functions
+        function addPlayerInput() {
+            const container = document.getElementById('playersContainer');
+            const playerInput = document.createElement('div');
+            playerInput.className = 'player-input';
+            playerInput.innerHTML = `
+                <input type="text" name="steamId" placeholder="Steam ID" required>
+                <input type="text" name="playerName" placeholder="Nome do Jogador" required>
+                <input type="url" name="playerPhoto" placeholder="URL da Foto" required>
+                <button type="button" onclick="removePlayerInput(this)">❌</button>
+            `;
+            container.appendChild(playerInput);
+        }
+
+        function removePlayerInput(button) {
+            button.parentElement.remove();
+        }
+
+        function addEditPlayerInput() {
+            const container = document.getElementById('editPlayersContainer');
+            const playerInput = document.createElement('div');
+            playerInput.className = 'player-input';
+            playerInput.innerHTML = `
+                <input type="text" name="steamId" placeholder="Steam ID" required>
+                <input type="text" name="playerName" placeholder="Nome do Jogador" required>
+                <input type="url" name="playerPhoto" placeholder="URL da Foto" required>
+                <button type="button" onclick="removePlayerInput(this)">❌</button>
+            `;
+            container.appendChild(playerInput);
+        }
+
+        // API Functions
+        async function saveTeam(formData) {
+            try {
+                const response = await fetch('/api/teams', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    loadTeams();
+                    hideAddTeamModal();
+                } else {
+                    alert('Erro ao salvar time');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar time');
+            }
+        }
+
+        async function editTeam(teamId) {
+            try {
+                const response = await fetch(`/api/teams/${teamId}`);
+                const team = await response.json();
+                
+                document.getElementById('editTeamId').value = team.id;
+                document.getElementById('editTeamName').value = team.name;
+                document.getElementById('editTeamLogo').value = team.logo || '';
+                
+                const playersContainer = document.getElementById('editPlayersContainer');
+                playersContainer.innerHTML = '';
+                
+                team.players.forEach(player => {
+                    addEditPlayerInput();
+                    const lastInput = playersContainer.lastElementChild;
+                    lastInput.querySelector('input[name="steamId"]').value = player.steamid;
+                    lastInput.querySelector('input[name="playerName"]').value = player.name;
+                    lastInput.querySelector('input[name="playerPhoto"]').value = player.photo || '';
+                });
+                
+                showEditTeamModal();
+            } catch (error) {
+                console.error('Erro ao carregar time:', error);
+            }
+        }
+
+        async function deleteTeam(teamId) {
+            if (confirm('Tem certeza que deseja excluir este time?')) {
+                try {
+                    const response = await fetch(`/api/teams/${teamId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        loadTeams();
+                    } else {
+                        alert('Erro ao excluir time');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir time');
+                }
+            }
+        }
+
+        function refreshSteamIds() {
+            loadSteamIds();
+        }
+
+        // Form Submissions
+        document.getElementById('addTeamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const teamData = {
+                name: formData.get('teamName'),
+                logo: formData.get('teamLogo'),
+                players: []
+            };
+
+            const playerInputs = e.target.querySelectorAll('.player-input');
+            playerInputs.forEach(input => {
+                const steamId = input.querySelector('input[name="steamId"]').value;
+                const name = input.querySelector('input[name="playerName"]').value;
+                const photo = input.querySelector('input[name="playerPhoto"]').value;
+                
+                if (steamId && name) {
+                    teamData.players.push({
+                        steamid: steamId,
+                        name: name,
+                        photo: photo
+                    });
+                }
+            });
+
+            saveTeam(teamData);
+        });
+
+        document.getElementById('editTeamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const teamData = {
+                id: formData.get('teamId'),
+                name: formData.get('teamName'),
+                logo: formData.get('teamLogo'),
+                players: []
+            };
+
+            const playerInputs = e.target.querySelectorAll('.player-input');
+            playerInputs.forEach(input => {
+                const steamId = input.querySelector('input[name="steamId"]').value;
+                const name = input.querySelector('input[name="playerName"]').value;
+                const photo = input.querySelector('input[name="playerPhoto"]').value;
+                
+                if (steamId && name) {
+                    teamData.players.push({
+                        steamid: steamId,
+                        name: name,
+                        photo: photo
+                    });
+                }
+            });
+
+            updateTeam(teamData);
+        });
+
+        async function updateTeam(teamData) {
+            try {
+                const response = await fetch(`/api/teams/${teamData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(teamData)
+                });
+
+                if (response.ok) {
+                    loadTeams();
+                    hideEditTeamModal();
+                } else {
+                    alert('Erro ao atualizar time');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar time');
+            }
+        }
+    </script>
+</body>
+</html>

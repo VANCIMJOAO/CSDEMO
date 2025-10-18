@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Analyzer - Jogadores</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar-menu">
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/matches" class="sidebar-link">
+                <a href="/upload" class="sidebar-link">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </a>
+                    <i class="fas fa-gamepad"></i>
+                    <span>Partidas</span>
+                </a>
+                <a href="/players" class="sidebar-link active">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/tournaments" class="sidebar-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Torneios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Carregando jogadores...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>👥 Nenhum jogador registrado ainda</h2>
+            <p>Quando as partidas forem analisadas, os jogadores aparecerão aqui!</p>
+        </div>
+
+        <!-- Search & Filters Section -->
+        <div id="searchSection" class="search-section" style="display: none;">
+            <div class="search-header">
+                <h3>🔍 Buscar Jogadores</h3>
+            </div>
+
+            <div class="search-bar-container">
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" placeholder="Buscar por nome, time ou SteamID..." id="searchInput" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="filters-container" id="filtersContainer" style="display: none;">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Time</label>
+                        <select class="filter-select" id="teamFilter">
+                            <option value="">Todos os times</option>
+                            <!-- Teams will be populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">K/D Mínimo</label>
+                        <select class="filter-select" id="kdFilter">
+                            <option value="">Qualquer K/D</option>
+                            <option value="2.0">2.0+</option>
+                            <option value="1.5">1.5+</option>
+                            <option value="1.0">1.0+</option>
+                            <option value="0.5">0.5+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Ordenar por</label>
+                        <select class="filter-select" id="sortFilter">
+                            <option value="kd">K/D Ratio</option>
+                            <option value="kills">Kills Totais</option>
+                            <option value="name">Nome (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn-primary btn-icon-only" onclick="applyFilters()" title="Aplicar filtros">
+                        ✅
+                    </button>
+                    <button class="btn-secondary btn-icon-only" onclick="clearFilters()" title="Resetar filtros">
+                        🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Grid -->
+        <div id="playersSection" class="top-players-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Todos os Jogadores</h2>
+                <p class="section-subtitle" id="playersCount">Carregando...</p>
+            </div>
+
+            <div class="players-grid" id="playersGrid">
+                <!-- Player cards will be inserted here by JavaScript -->
+            </div>
+
+            <!-- Load More Button -->
+            <div id="loadMoreContainer" style="display: flex; justify-content: center; margin-top: var(--space-6);">
+                <button class="view-all-btn" id="loadMoreBtn" onclick="loadMorePlayers()">
+                    Carregar Mais
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎮 CS2 Demo Analyzer - LAN Party Edition</p>
+            <p>Desenvolvido para análise profissional em tempo real 💪</p>
+        </div>
+    </div>
+
+    <script>
+        let allPlayers = [];
+        let filteredPlayers = [];
+        let displayedPlayers = [];
+        let currentPage = 0;
+        const PLAYERS_PER_PAGE = 12;
+
+        // Carregar todos os jogadores
+        async function loadAllPlayers() {
+            try {
+                const response = await fetch('/api/top-players?limit=1000'); // Get all players
+                const players = await response.json();
+
+                if (players && players.length > 0) {
+                    allPlayers = players;
+                    filteredPlayers = [...players];
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('playersSection').style.display = 'block';
+                    document.getElementById('searchSection').style.display = 'block';
+
+                    updatePlayersCount();
+                    renderPlayers();
+                    populateTeamFilter();
+                } else {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('playersSection').style.display = 'none';
+                    document.getElementById('searchSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar jogadores:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: #dc3545;">❌ Erro ao carregar jogadores</p>';
+            }
+        }
+
+        // Update players count
+        function updatePlayersCount() {
+            const count = filteredPlayers.length;
+            const countText = count === 1 ? '1 jogador encontrado' : `${count} jogadores encontrados`;
+            document.getElementById('playersCount').textContent = countText;
+        }
+
+        // Populate team filter
+        function populateTeamFilter() {
+            const teamFilter = document.getElementById('teamFilter');
+            const teams = new Set();
+
+            allPlayers.forEach(player => {
+                if (player.team_name) {
+                    teams.add(player.team_name);
+                }
+            });
+
+            // Clear existing options except the first one
+            teamFilter.innerHTML = '<option value="">Todos os times</option>';
+
+            // Add team options
+            Array.from(teams).sort().forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+        }
+
+        // Render players with pagination
+        function renderPlayers(reset = true) {
+            const grid = document.getElementById('playersGrid');
+
+            if (reset) {
+                grid.innerHTML = '';
+                currentPage = 0;
+                displayedPlayers = [];
+            }
+
+            const startIndex = currentPage * PLAYERS_PER_PAGE;
+            const endIndex = startIndex + PLAYERS_PER_PAGE;
+            const playersToShow = filteredPlayers.slice(startIndex, endIndex);
+
+            displayedPlayers.push(...playersToShow);
+
+            playersToShow.forEach((player, globalIndex) => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.onclick = () => window.location.href = `/pro/${player.steamid}`;
+
+                // Ranking global
+                const rank = startIndex + globalIndex + 1;
+                const rankColors = {
+                    1: '#FFD700',  // Gold
+                    2: '#C0C0C0',  // Silver
+                    3: '#CD7F32'   // Bronze
+                };
+                const rankColor = rankColors[rank] || '#00d9ff';
+
+                // Determinar avatar (foto ou inicial)
+                let avatarContent = '';
+                if (player.photo && !player.photo.includes('blob:') && !player.photo.includes('Image-not-found')) {
+                    avatarContent = `<img src="${player.photo}" alt="${player.name}" onerror="this.style.display='none'; this.parentElement.textContent='${player.name.charAt(0).toUpperCase()}';">`;
+                } else {
+                    const initial = player.name.charAt(0).toUpperCase();
+                    avatarContent = initial;
+                }
+
+                // Determinar time
+                const teamName = player.team_name || 'Sem Time';
+
+                // Calcular porcentagem para a barra de HS
+                const hsBarWidth = Math.min(player.hs_percent || 0, 100);
+
+                card.innerHTML = `
+                    <div class="player-card-rank" style="color: ${rankColor};">#${rank}</div>
+                    <div class="player-card-image-container">
+                        <div class="player-avatar-large">
+                            ${avatarContent}
+                        </div>
+                        <div class="player-card-overlay">
+                            <div class="player-card-name">${player.name}</div>
+                            <div class="player-card-team">${teamName}</div>
+                        </div>
+                    </div>
+                    <div class="player-card-stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">K/D Ratio</div>
+                            <div class="stat-value stat-kd">${player.kd_ratio}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Rating</div>
+                            <div class="stat-value stat-rating">${player.rating || '0.00'}</div>
+                        </div>
+                    </div>
+                    <div class="player-card-stats-details">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Kills</span>
+                            <span class="stat-detail-value stat-kills">${player.total_kills || 0}</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Deaths</span>
+                            <span class="stat-detail-value stat-deaths">${player.total_deaths || 0}</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">HS%</span>
+                            <span class="stat-detail-value stat-hs">${player.hs_percent || 0}%</span>
+                        </div>
+                    </div>
+                    <div class="hs-accuracy-bar">
+                        <div class="hs-accuracy-label">Headshot Accuracy</div>
+                        <div class="hs-accuracy-percent">${player.hs_percent || 0}%</div>
+                        <div class="hs-bar-container">
+                            <div class="hs-bar-fill" style="width: ${hsBarWidth}%"></div>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Show/hide load more button
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            if (endIndex >= filteredPlayers.length) {
+                loadMoreContainer.style.display = 'none';
+            } else {
+                loadMoreContainer.style.display = 'flex';
+            }
+
+            currentPage++;
+        }
+
+        // Load more players
+        function loadMorePlayers() {
+            renderPlayers(false);
+        }
+
+        // Search functionality
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.toLowerCase().trim();
+
+            if (query === '') {
+                filteredPlayers = [...allPlayers];
+            } else {
+                filteredPlayers = allPlayers.filter(player => {
+                    const name = (player.name || '').toLowerCase();
+                    const team = (player.team_name || '').toLowerCase();
+                    const steamid = (player.steamid || '').toLowerCase();
+
+                    return name.includes(query) ||
+                           team.includes(query) ||
+                           steamid.includes(query);
+                });
+            }
+
+            updatePlayersCount();
+            renderPlayers(true);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const teamFilter = document.getElementById('teamFilter').value;
+            const kdFilter = parseFloat(document.getElementById('kdFilter').value) || 0;
+            const sortFilter = document.getElementById('sortFilter').value;
+
+            let players = [...allPlayers];
+
+            // Filter by team
+            if (teamFilter) {
+                players = players.filter(p => p.team_name === teamFilter);
+            }
+
+            // Filter by K/D
+            if (kdFilter > 0) {
+                players = players.filter(p => parseFloat(p.kd_ratio) >= kdFilter);
+            }
+
+            // Sort
+            switch (sortFilter) {
+                case 'kd':
+                    players.sort((a, b) => parseFloat(b.kd_ratio) - parseFloat(a.kd_ratio));
+                    break;
+                case 'kills':
+                    players.sort((a, b) => b.total_kills - a.total_kills);
+                    break;
+                case 'name':
+                    players.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+            }
+
+            filteredPlayers = players;
+            updatePlayersCount();
+            renderPlayers(true);
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('teamFilter').value = '';
+            document.getElementById('kdFilter').value = '';
+            document.getElementById('sortFilter').value = 'kd';
+
+            filteredPlayers = [...allPlayers];
+            updatePlayersCount();
+            renderPlayers(true);
+        }
+
+        // Toggle filters visibility
+        function toggleFilters() {
+            const container = document.getElementById('filtersContainer');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // Setup search
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', performSearch);
+            }
+
+            // Show filters by default
+            document.getElementById('filtersContainer').style.display = 'block';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAllPlayers();
+            setupSearch();
+        });
+    </script>
+        </div>
+    </div>
+</body>
+</html>

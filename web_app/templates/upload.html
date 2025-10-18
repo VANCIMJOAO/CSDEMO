@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Demo - CS2 Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .upload-card {
+            background: var(--color-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .upload-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-header h1 {
+            font-size: 32px;
+            font-weight: var(--weight-bold);
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .upload-header p {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            text-align: center;
+            background: rgba(0, 217, 255, 0.03);
+            cursor: pointer;
+            transition: all 300ms ease;
+            margin-bottom: 30px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--color-primary);
+            background: rgba(0, 217, 255, 0.08);
+        }
+
+        .upload-zone.dragging {
+            border-color: var(--color-primary);
+            background: rgba(0, 217, 255, 0.15);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .selected-file.show {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-icon {
+            font-size: 40px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: var(--weight-semibold);
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .remove-file {
+            background: rgba(255, 107, 107, 0.2);
+            border: none;
+            color: #ff6b6b;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: var(--weight-semibold);
+            transition: all 200ms ease;
+        }
+
+        .remove-file:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: var(--weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--color-background);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 200ms ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upload-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 18px;
+            font-weight: var(--weight-bold);
+            cursor: pointer;
+            transition: all 300ms ease;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .upload-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.4);
+        }
+
+        .upload-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-background);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            width: 0%;
+            transition: width 300ms ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-wrapper">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar-menu">
+            <div class="sidebar-logo">
+                <i class="fas fa-crosshairs"></i>
+                <span>CS2 Analyzer</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/matches" class="sidebar-link">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Partidas</span>
+                </a>
+                <a href="/upload" class="sidebar-link active">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload</span>
+                </a>
+                <a href="/players" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/tournaments" class="sidebar-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Torneios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="upload-container">
+        <div class="upload-card">
+            <div class="upload-header">
+                <h1>📤 Upload de Demo</h1>
+                <p>Envie uma demo do CS2 para análise automática</p>
+            </div>
+
+            <form id="uploadForm">
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Clique para selecionar ou arraste uma demo aqui</div>
+                    <div class="upload-hint">Arquivos .dem até 2GB</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".dem">
+                </div>
+
+                <!-- Selected File -->
+                <div class="selected-file" id="selectedFile">
+                    <div class="file-icon">🎮</div>
+                    <div class="file-info">
+                        <div class="file-name" id="fileName"></div>
+                        <div class="file-size" id="fileSize"></div>
+                    </div>
+                    <button type="button" class="remove-file" id="removeFile">Remover</button>
+                </div>
+
+                <!-- Tournament Checkbox -->
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isTournament" class="checkbox-input">
+                        <label for="isTournament" class="form-label" style="margin-bottom: 0;">
+                            Esta demo é de um campeonato
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tournament Name -->
+                <div class="form-group" id="tournamentGroup" style="display: none;">
+                    <label for="tournamentName" class="form-label">Nome do Campeonato</label>
+                    <input type="text" id="tournamentName" class="form-input" placeholder="Ex: Copa CS2 2025" disabled>
+                </div>
+
+                <!-- Upload Button -->
+                <button type="submit" class="upload-button" id="uploadButton" disabled>
+                    Enviar Demo
+                </button>
+
+                <!-- Progress Bar -->
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <!-- Messages -->
+                <div class="message" id="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFile = document.getElementById('selectedFile');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFileBtn = document.getElementById('removeFile');
+        const uploadButton = document.getElementById('uploadButton');
+        const isTournament = document.getElementById('isTournament');
+        const tournamentGroup = document.getElementById('tournamentGroup');
+        const tournamentName = document.getElementById('tournamentName');
+        const uploadForm = document.getElementById('uploadForm');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const message = document.getElementById('message');
+
+        let selectedFileObject = null;
+
+        // Click to upload
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragging');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragging');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragging');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.dem')) {
+                showMessage('error', 'Por favor, selecione um arquivo .dem válido');
+                return;
+            }
+
+            selectedFileObject = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            selectedFile.classList.add('show');
+            uploadButton.disabled = false;
+            message.classList.remove('show');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        removeFileBtn.addEventListener('click', () => {
+            selectedFileObject = null;
+            fileInput.value = '';
+            selectedFile.classList.remove('show');
+            uploadButton.disabled = true;
+            message.classList.remove('show');
+        });
+
+        isTournament.addEventListener('change', () => {
+            if (isTournament.checked) {
+                tournamentGroup.style.display = 'block';
+                tournamentName.disabled = false;
+            } else {
+                tournamentGroup.style.display = 'none';
+                tournamentName.disabled = true;
+                tournamentName.value = '';
+            }
+        });
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!selectedFileObject) {
+                showMessage('error', 'Por favor, selecione uma demo primeiro');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFileObject);
+            formData.append('is_tournament', isTournament.checked);
+            formData.append('tournament_name', tournamentName.value);
+
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Enviando...';
+            progressBar.classList.add('show');
+            message.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/upload-demo', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                progressFill.style.width = '100%';
+
+                if (result.success) {
+                    showMessage('success', result.message);
+                    setTimeout(() => {
+                        window.location.href = '/matches';
+                    }, 2000);
+                } else {
+                    showMessage('error', result.error || 'Erro ao enviar demo');
+                    uploadButton.disabled = false;
+                    uploadButton.textContent = 'Enviar Demo';
+                }
+            } catch (error) {
+                showMessage('error', 'Erro ao enviar demo: ' + error.message);
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Enviar Demo';
+            } finally {
+                setTimeout(() => {
+                    progressBar.classList.remove('show');
+                    progressFill.style.width = '0%';
+                }, 1000);
+            }
+        });
+
+        function showMessage(type, text) {
+            message.textContent = text;
+            message.className = 'message show ' + type;
+        }
+    </script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

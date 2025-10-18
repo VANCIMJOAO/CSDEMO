@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Demo Analyzer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CS2 Demo Analyzer</h1>
+            <p>Faça upload de sua demo .dem e obtenha análise completa dos jogadores</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <div class="file-input-wrapper">
+                        <input type="file" name="file" accept=".dem" required id="fileInput">
+                        <label for="fileInput" class="file-label">
+                            📁 Escolher arquivo .dem
+                        </label>
+                    </div>
+                    <button type="submit" class="upload-btn">
+                        📤 Analisar Demo
+                    </button>
+                </form>
+            </div>
+
+            {% if message %}
+            <div class="result-section">
+                <div class="result-header">
+                    <h2>{{ message }}</h2>
+                </div>
+                
+                {% if player_stats %}
+                <div class="stats-section">
+                    <h3>🏆 Estatísticas dos Jogadores</h3>
+                    <div class="stats-grid">
+                        {% for player in player_stats %}
+                        <div class="player-card">
+                            <div class="player-header">
+                                <h4>{{ player.player }}</h4>
+                                <span class="team-badge {{ 'ct' if player.team == 'CT' else 't' }}">{{ player.team }}</span>
+                            </div>
+                            <div class="player-stats">
+                                <!-- Combat Stats -->
+                                <div class="stats-section-title">⚔️ Combate</div>
+                                <div class="stats-row">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Kills</span>
+                                        <span class="stat-value">{{ player.total_kills }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Deaths</span>
+                                        <span class="stat-value">{{ player.deaths }}</span>
+                                    </div>
+                                </div>
+                                <div class="stats-row">
+                                    <div class="stat-item">
+                                        <span class="stat-label">K/D Ratio</span>
+                                        <span class="stat-value kd-ratio">{{ player.kd_ratio }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">HS%</span>
+                                        <span class="stat-value hs-percent">{{ player.hs_percent }}%</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Damage Stats -->
+                                <div class="stats-section-title">💥 Dano</div>
+                                <div class="stats-row">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Total Dano</span>
+                                        <span class="stat-value damage-value">{{ player.total_damage }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Dano Médio</span>
+                                        <span class="stat-value">{{ "%.0f"|format(player.total_damage / player.total_kills if player.total_kills > 0 else 0) }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Special Stats -->
+                                <div class="stats-section-title">🎯 Especiais</div>
+                                <div class="stats-row">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Wallbang</span>
+                                        <span class="stat-value">{{ player.penetrated }}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Smoke Kill</span>
+                                        <span class="stat-value">{{ player.thrusmoke }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Performance Indicators -->
+                                <div class="performance-bars">
+                                    <div class="performance-item">
+                                        <span class="perf-label">Precisão</span>
+                                        <div class="perf-bar">
+                                            <div class="perf-fill" style="width: {{ player.hs_percent }}%"></div>
+                                        </div>
+                                        <span class="perf-value">{{ player.hs_percent }}%</span>
+                                    </div>
+                                    <div class="performance-item">
+                                        <span class="perf-label">Eficiência</span>
+                                        <div class="perf-bar">
+                                            <div class="perf-fill" style="width: {{ (player.kd_ratio * 50) if player.kd_ratio <= 2 else 100 }}%"></div>
+                                        </div>
+                                        <span class="perf-value">{{ player.kd_ratio }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="download-section">
+                        <h4>📁 Ações Disponíveis</h4>
+                        <div class="download-links">
+                            <a href="/dashboard/{{ demo_name }}" class="download-btn">
+                                📊 Ver Dashboard Completo
+                            </a>
+                            <a href="/download/{{ demo_name }}" class="download-btn secondary">
+                                📄 Baixar CSV
+                            </a>
+                            <p class="download-info">
+                                Arquivos salvos em: <code>demo_analysis/{{ demo_name }}/</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if log %}
+                <div class="log-section">
+                    <h3>📊 Log de Análise</h3>
+                    <pre class="log-content">{{ log }}</pre>
+                </div>
+                {% endif %}
+                
+                {% if error %}
+                <div class="error-section">
+                    <h3>❌ Erros</h3>
+                    <pre class="error-content">{{ error }}</pre>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="info-section">
+                <h3>📋 Funcionalidades</h3>
+                <ul>
+                    <li>✅ Análise completa de kills e deaths</li>
+                    <li>🎯 Estatísticas de dano e headshots</li>
+                    <li>📈 K/D ratio e porcentagem de HS</li>
+                    <li>📊 Dados exportados em CSV</li>
+                    <li>🔍 Informações detalhadas da partida</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <p>Desenvolvido para análise profissional de demos CS2 💪</p>
+        </footer>
+    </div>
+
+    <script>
+        // Mostrar nome do arquivo selecionado
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                document.querySelector('.file-label').textContent = `📁 ${fileName}`;
+            }
+        });
+
+        // Loading state no formulário
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            const button = document.querySelector('.upload-btn');
+            button.textContent = '⏳ Analisando...';
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>

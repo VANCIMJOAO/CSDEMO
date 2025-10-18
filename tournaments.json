@@ -1,0 +1,96 @@
+[
+  {
+    "slug": "alcans-santos-gamers",
+    "name": "Alcans Santos Gamers",
+    "description": "",
+    "start_date": "2025-10-19",
+    "end_date": "2025-10-19",
+    "logo": "/static/imgs/logo.png",
+    "prize_pool": "1600",
+    "format": "Best of 1",
+    "location": "LAN",
+    "prize_1st": "1200",
+    "prize_2nd": "400",
+    "prize_3rd": "0",
+    "team_ids": [
+      "team_orbitral_roxa",
+      "team_1760734534",
+      "team_1760734618",
+      "team_1760734682",
+      "team_1760734743",
+      "team_1760734795",
+      "team_1760734846",
+      "team_1760736257"
+    ],
+    "bracket": {
+      "upper_bracket": {
+        "opening_round": [
+          {
+            "match_id": "ub_opening_1",
+            "team1_id": "team_1760734682",
+            "team2_id": "team_1760734534",
+            "status": "completed",
+            "winner": "team_1760734682",
+            "loser": "team_1760734534"
+          },
+          {
+            "match_id": "ub_opening_2",
+            "team1_id": "team_1760734846",
+            "team2_id": "team_1760736257",
+            "status": "completed",
+            "winner": "team_1760734846",
+            "loser": "team_1760736257"
+          },
+          {
+            "match_id": "ub_opening_3",
+            "team1_id": "team_orbitral_roxa",
+            "team2_id": "team_1760734743",
+            "status": "completed",
+            "winner": "team_orbitral_roxa",
+            "loser": "team_1760734743"
+          },
+          {
+            "match_id": "ub_opening_4",
+            "team1_id": "team_1760734795",
+            "team2_id": "team_1760734618",
+            "status": "completed",
+            "winner": "team_1760734618",
+            "loser": "team_1760734795"
+          }
+        ],
+        "quarters": [
+          {
+            "match_id": "ub_quarters_1",
+            "team1_id": "team_1760734682",
+            "team2_id": "team_1760734846",
+            "status": "pending"
+          },
+          {
+            "match_id": "ub_quarters_2",
+            "team1_id": "team_orbitral_roxa",
+            "team2_id": "team_1760734618",
+            "status": "pending"
+          }
+        ]
+      },
+      "lower_bracket": {
+        "round1": [
+          {
+            "match_id": "lb_r1_1",
+            "team1_id": "team_1760734534",
+            "team2_id": "team_1760736257",
+            "status": "pending"
+          },
+          {
+            "match_id": "lb_r1_2",
+            "team1_id": "team_1760734743",
+            "team2_id": "team_1760734795",
+            "status": "pending"
+          }
+        ],
+        "round2": []
+      }
+    },
+    "created_at": "2025-10-17T18:46:32.933429"
+  }
+]

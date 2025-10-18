@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+
+# Demos e análises (arquivos grandes)
+demos/*.dem
+demo_analysis/*/
+!demo_analysis/.gitkeep
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dados locais
+teams.json.backup
+processed_demos.json.backup
+
+# Temporários
+*.tmp
+*.bak
